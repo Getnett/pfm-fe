@@ -11,8 +11,9 @@ import { RouterLink, RouterView } from 'vue-router'
       </nav>
     </div>
   </header>
-
   <RouterView />
+
+  <p>test if amazon amplify deploys Automatically after configuration</p>
 </template>
 
 <style scoped></style>
