@@ -34,4 +34,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Start Amplify deployment
-        run: ${{secrets.AWS_AMPLIFY_WEB_HOOK}}
+        run: |
+          ${{secrets.AWS_AMPLIFY_WEB_HOOK}}
