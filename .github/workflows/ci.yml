@@ -1,0 +1,30 @@
+name: Deploy to Amazon Amplify
+
+on:
+  push:
+    branches:
+      - main # Trigger deployment on changes to the main branch
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [16.x, 18.x, 20.x]
+    steps:
+      # Step 1: Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+
+      # Step 3: Install dependencies and build the app
+      - name: Install dependencies
+        run: npm install
+      - name: Unit test
+        run: npm run test:unit
