@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
+// make all immdeiate child elements go black [&_*]:text-black
 </script>
 
 <template>
@@ -10,7 +11,7 @@ import { RouterLink, RouterView } from 'vue-router'
         <RouterLink class="hover:text-yellow-300" to="/charts">Charts</RouterLink>
       </nav>
     </aside>
-    <main class="flex-1 pt-8 px-8 bg-slate-100 [&_*]:text-black">
+    <main class="flex-1 pt-8 px-8 bg-slate-100">
       <div>
         <RouterView />
       </div>
