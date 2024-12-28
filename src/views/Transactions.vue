@@ -54,7 +54,6 @@ function handleDeleteTransaction(type: string, id: number) {
             <h4
               v-if="
                 data[transactionDateKey].filter((transaction) => transaction.type === 'expense')[0]
-                  .total
               "
               class="text-[#eb4c4c] text-sm"
             >
@@ -66,7 +65,6 @@ function handleDeleteTransaction(type: string, id: number) {
             <h4
               v-if="
                 data[transactionDateKey].filter((transaction) => transaction.type === 'income')[0]
-                  .total
               "
               class="text-[#75bb6c] text-sm"
             >
