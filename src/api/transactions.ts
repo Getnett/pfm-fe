@@ -2,7 +2,7 @@ export async function fetchTranscationRecords(month: number, year: number) {
   try {
     const res = await fetch(`http://13.50.203.130/api/transactions?month=${month}&year=${year}`)
     const transactionsData = await res.json()
-    console.log('transactionsData', transactionsData)
+
     let transactionsGroupedByDate: any = {}
     transactionsData.forEach((item: any) => {
       if (transactionsGroupedByDate[item.transactionDate]) {
@@ -11,6 +11,7 @@ export async function fetchTranscationRecords(month: number, year: number) {
         transactionsGroupedByDate[item.transactionDate] = [item]
       }
     })
+    console.log('transactionsGroupedByDate', transactionsGroupedByDate)
     return transactionsGroupedByDate
   } catch (error: any) {
     throw error

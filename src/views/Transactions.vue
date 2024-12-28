@@ -1,4 +1,18 @@
 <script lang="ts" setup>
+interface Transaction {
+  id: number
+  amount: number
+  note: string
+  date: string
+  transactionDate: string
+  total: string
+  type: string
+}
+
+interface TransactionType {
+  [key: string]: Transaction[]
+}
+
 import { ref, onMounted } from 'vue'
 import {
   fetchTranscationRecords,
@@ -6,7 +20,7 @@ import {
   deleteIncomeTransaction,
 } from '../api/transactions'
 
-const data = ref([])
+const data = ref({} as TransactionType)
 const error = ref(null)
 const loading = ref(false)
 
@@ -16,13 +30,13 @@ onMounted(async () => {
     const resData = await fetchTranscationRecords(12, 2024)
     data.value = resData
   } catch (err: any) {
-    error.value = err.message || 'Somthing went wrong!'
+    error.value = err?.message || 'Somthing went wrong!'
   } finally {
     loading.value = false
   }
 })
 
-function handleDeleteTransaction(type, id) {
+function handleDeleteTransaction(type: string, id: number) {
   if (type === 'expense') {
     deleteExpenseTransaction(id)
   } else if (type === 'income') {
@@ -39,31 +53,27 @@ function handleDeleteTransaction(type, id) {
           <div class="flex gap-4">
             <h4
               v-if="
-                data[transactionDateKey].filter(
-                  (transaction: any) => transaction.type === 'expense',
-                )[0]?.total
+                data[transactionDateKey].filter((transaction) => transaction.type === 'expense')[0]
+                  .total
               "
               class="text-[#eb4c4c] text-sm"
             >
               Expense :{{
-                data[transactionDateKey].filter(
-                  (transaction: any) => transaction.type === 'expense',
-                )[0]?.total
+                data[transactionDateKey].filter((transaction) => transaction.type === 'expense')[0]
+                  .total
               }}
             </h4>
             <h4
               v-if="
-                data[transactionDateKey].filter(
-                  (transaction: any) => transaction.type === 'income',
-                )[0]?.total
+                data[transactionDateKey].filter((transaction) => transaction.type === 'income')[0]
+                  .total
               "
               class="text-[#75bb6c] text-sm"
             >
               Income :
               {{
-                data[transactionDateKey].filter(
-                  (transaction: any) => transaction.type === 'income',
-                )[0]?.total
+                data[transactionDateKey].filter((transaction) => transaction.type === 'income')[0]
+                  .total
               }}
             </h4>
           </div>
