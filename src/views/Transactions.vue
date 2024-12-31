@@ -1,104 +1,51 @@
 <script lang="ts" setup>
-interface Transaction {
-  id: number
-  amount: number
-  note: string
-  date: string
-  transactionDate: string
-  total: string
-  type: string
-}
-
-interface TransactionType {
-  [key: string]: Transaction[]
-}
-
 import { ref, onMounted } from 'vue'
 import {
   fetchTranscationRecords,
   deleteExpenseTransaction,
   deleteIncomeTransaction,
 } from '../api/transactions'
+import type { TransactionType } from '../types/types'
+import TransactionsList from '../components/TransactionsList.vue'
 
 const data = ref({} as TransactionType)
 const error = ref(null)
 const loading = ref(false)
 
-onMounted(async () => {
+async function getTransactions() {
   loading.value = true
   try {
     const resData = await fetchTranscationRecords(12, 2024)
-    data.value = resData
+    data.value = resData as TransactionType
   } catch (err: any) {
     error.value = err?.message || 'Somthing went wrong!'
   } finally {
     loading.value = false
   }
+}
+
+onMounted(async () => {
+  getTransactions()
 })
 
-function handleDeleteTransaction(type: string, id: number) {
+// TODO
+// 1) Extract component - [DONE]
+// 2) Re-render the component - [DONE]
+// 3) Edit modal - In progress
+// 4) If possible fix the https issue
+
+async function handleDeleteTransaction(type: string, id: number) {
   if (type === 'expense') {
-    deleteExpenseTransaction(id)
+    await deleteExpenseTransaction(id)
+    await getTransactions()
   } else if (type === 'income') {
-    deleteIncomeTransaction(id)
+    await deleteIncomeTransaction(id)
+    await getTransactions()
   }
 }
 </script>
 <template>
-  <div>
-    <ul class="list-none">
-      <li v-for="transactionDateKey in Object.keys(data)" :key="transactionDateKey">
-        <div class="flex gap-10 justify-between mb-4 mt-4 px-2 py-2 bg-[#1e293b]">
-          <h4 class="text-[#efd364] text-sm">{{ transactionDateKey }}</h4>
-          <div class="flex gap-4">
-            <h4
-              v-if="
-                data[transactionDateKey].filter((transaction) => transaction.type === 'expense')[0]
-              "
-              class="text-[#eb4c4c] text-sm"
-            >
-              Expense :{{
-                data[transactionDateKey].filter((transaction) => transaction.type === 'expense')[0]
-                  .total
-              }}
-            </h4>
-            <h4
-              v-if="
-                data[transactionDateKey].filter((transaction) => transaction.type === 'income')[0]
-              "
-              class="text-[#75bb6c] text-sm"
-            >
-              Income :
-              {{
-                data[transactionDateKey].filter((transaction) => transaction.type === 'income')[0]
-                  .total
-              }}
-            </h4>
-          </div>
-        </div>
-        <div v-for="transaction in data[transactionDateKey]" :key="transaction.id">
-          <div class="flex gap-10 justify-between px-2 py-2 bg-[#1e293b]">
-            <div class="flex gap-2">
-              <div class="text-[#fff]">icon</div>
-              <h3 class="text-[#fff]">{{ transaction.note }}</h3>
-            </div>
-            <div class="flex gap-4">
-              <h3 class="text-[#fff]">{{ transaction.amount }}</h3>
-              <div class="flex gap-2">
-                <button class="cursor-pointer text-[#fff]">Edit</button>
-                <button
-                  @click="handleDeleteTransaction(transaction.type, transaction.id)"
-                  class="cursor-pointer text-[#fff]"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </li>
-    </ul>
-  </div>
+  <TransactionsList :data="data" @delete-transaction="handleDeleteTransaction" />
 </template>
 
 <style></style>
