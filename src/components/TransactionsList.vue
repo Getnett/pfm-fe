@@ -4,12 +4,12 @@ interface TransactionsListProps {
   data: TransactionType
 }
 interface DeleteTransactionEvent {
-  deleteTransaction: (e: 'deleteTransaction', type: string, id: number) => void
+  deleteTransaction: (e: 'deleteTransaction', type: string, id: number) => Promise<void>
 }
 // @ts-ignore
 defineProps<TransactionsListProps>()
 // @ts-ignore
-defineEmits<DeleteTransactionEvent>()
+defineEmits<{(e: 'deleteTransaction', type: string, id: number) => Promise<void>}>()
 </script>
 <template>
   <div>
