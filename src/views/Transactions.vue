@@ -34,10 +34,9 @@ onMounted(async () => {
 })
 
 // TODO
-// 1) Display category and income source for expense and income reviews respectively and  Update categories and income sources respectively for expenses and incomes
-// 2) Layout including to add filters and summary of expenses,income and balance. [ TODO ]
-// 3) Loading state and error handling
-// 4) If possible fix the https issue
+// 1) Layout including to add filters and summary of expenses,income and balance. [ TODO ]
+// 2) Loading state and error handling
+// 3) If possible fix the https issue
 
 async function handleDeleteTransaction(type: string, id: number) {
   if (type === 'expense') {

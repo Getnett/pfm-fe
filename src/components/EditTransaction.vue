@@ -5,6 +5,8 @@ import {
   getIncomeTransaction,
   updateExpenseTransaction,
   updateIncomeTransaction,
+  getAllCategories,
+  getAllIncomeSources,
 } from '../api/transactions'
 
 interface EditTransactionsProps {
@@ -22,6 +24,8 @@ const emit = defineEmits<{
 }>()
 
 const transactionData = ref<any | null>(null)
+const categories = ref<{ id: number; categoryName: string }[]>([])
+const incomeSources = ref<{ id: number; incomeSource: string }[]>([])
 const isEditMode = ref(false)
 
 async function handleEditForm() {
@@ -37,7 +41,6 @@ async function handleEditForm() {
         accountId: transactionData.value.accountId,
       })
     } else if (transactionType === 'income') {
-      console.log('transactionData.value', transactionData.value)
       await updateIncomeTransaction(id as number, {
         amount: Number(transactionData.value.amount),
         note: transactionData.value.note,
@@ -53,14 +56,16 @@ async function handleEditForm() {
 
 onMounted(async () => {
   if (transactionType === 'expense') {
+    categories.value = await getAllCategories()
+  } else if (transactionType === 'income') {
+    incomeSources.value = await getAllIncomeSources()
+  }
+  if (transactionType === 'expense') {
     transactionData.value = await getExpenseTransaction(id as number)
     transactionData.value.date = new Date(transactionData.value.date).toISOString().slice(0, 16)
-    console.log('Exp-Transaction', transactionData.value)
-    console.log('date', new Date(transactionData.value.date).toISOString().split('T')[0])
   } else {
     transactionData.value = await getIncomeTransaction(id as number)
     transactionData.value.date = new Date(transactionData.value.date).toISOString().slice(0, 16)
-    console.log('Income-Transaction', transactionData.value)
   }
 })
 </script>
@@ -80,12 +85,19 @@ onMounted(async () => {
               <div class="flex sm:flex sm:items-start">
                 <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
                   <div class="flex min-h-full flex-col justify-center px-6 py-4 lg:px-8">
-                    <div class="mt-4 sm:mx-auto sm:w-full sm:max-w-sm">
+                    <div class="mt-3 sm:mx-auto sm:w-full sm:max-w-sm">
                       <!-- summary -->
+                      <div class="mb-3 flex justify-center">
+                        <h3>Details</h3>
+                      </div>
 
-                      <div v-if="!isEditMode" class="flex flex-col gap-4">
-                        <h3 class="text-stone-600">
-                          {{ transactionType === 'expense' ? 'Category' : 'Income source' }}
+                      <div v-if="!isEditMode" class="flex flex-col gap-4 mt-3">
+                        <h3 class="text-stone-600 capitalize">
+                          {{
+                            transactionType === 'expense'
+                              ? transactionData?.categoryName
+                              : transactionData?.incomeSource
+                          }}
                         </h3>
                         <div class="flex gap-8">
                           <h3 class="text-stone-600">Type</h3>
@@ -149,6 +161,48 @@ onMounted(async () => {
                             />
                           </div>
                         </div>
+                        <div v-if="transactionType === 'expense'">
+                          <label
+                            for="categories"
+                            class="block mb-2 text-sm font-medium text-gray-900"
+                            >Categories
+                          </label>
+                          <select
+                            v-model="transactionData.categoryId"
+                            id="categories"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                          >
+                            <option
+                              v-for="category in categories"
+                              :key="category.id"
+                              :value="category.id"
+                            >
+                              {{ category.categoryName }}
+                            </option>
+                          </select>
+                        </div>
+
+                        <div v-if="transactionType === 'income'">
+                          <label
+                            for="categories"
+                            class="block mb-2 text-sm font-medium text-gray-900"
+                            >Income source
+                          </label>
+                          <select
+                            v-model="transactionData.incomeSourcesId"
+                            id="categories"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                          >
+                            <option
+                              v-for="incomeSource in incomeSources"
+                              :key="incomeSource.id"
+                              :value="incomeSource.id"
+                            >
+                              {{ incomeSource.incomeSource }}
+                            </option>
+                          </select>
+                        </div>
+
                         <div>
                           <div class="flex items-center justify-between">
                             <label for="date" class="block text-sm/6 font-medium text-gray-900"

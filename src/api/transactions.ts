@@ -86,3 +86,25 @@ export async function updateIncomeTransaction(id: number, payload: any) {
     throw new Error(error)
   }
 }
+
+// May be move out of this file
+
+export async function getAllCategories() {
+  try {
+    const res = await fetch('http://localhost:3000/api/categories')
+    const resData = await res.json()
+    return resData
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
+export async function getAllIncomeSources() {
+  try {
+    const res = await fetch('http://localhost:3000/api/income-sources')
+    const resData = await res.json()
+    return resData
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
