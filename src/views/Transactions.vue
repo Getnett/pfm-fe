@@ -6,9 +6,14 @@ import {
   deleteIncomeTransaction,
 } from '../api/transactions'
 import type { TransactionType } from '../types/types'
-import TransactionsList from '../components/TransactionsList.vue'
+import TransactionsList from '@/components/TransactionsList.vue'
+import EditTransaction from '@/components/EditTransaction.vue'
 
 const data = ref({} as TransactionType)
+const openEditModal = ref(false)
+const transactionId = ref<number | null>(null)
+const transactionType = ref('')
+
 const error = ref(null)
 const loading = ref(false)
 
@@ -29,9 +34,9 @@ onMounted(async () => {
 })
 
 // TODO
-// 1) Extract component - [DONE]
-// 2) Re-render the component - [DONE]
-// 3) Edit modal - In progress
+// 1) Display category and income source for expense and income reviews respectively and  Update categories and income sources respectively for expenses and incomes
+// 2) Layout including to add filters and summary of expenses,income and balance. [ TODO ]
+// 3) Loading state and error handling
 // 4) If possible fix the https issue
 
 async function handleDeleteTransaction(type: string, id: number) {
@@ -43,9 +48,34 @@ async function handleDeleteTransaction(type: string, id: number) {
     await getTransactions()
   }
 }
+
+function handleOpenEditModal(id: number, type: string) {
+  openEditModal.value = true
+  transactionId.value = id
+  transactionType.value = type
+}
+
+async function handleCloseEditModal() {
+  openEditModal.value = false
+  await getTransactions()
+}
 </script>
 <template>
-  <TransactionsList :data="data" @delete-transaction="handleDeleteTransaction" />
+  <div>
+    <TransactionsList
+      :data="data"
+      @deleteTransaction="handleDeleteTransaction"
+      @editTransaction="handleOpenEditModal"
+    />
+
+    <EditTransaction
+      v-if="openEditModal"
+      :open="openEditModal"
+      :id="transactionId"
+      :transactionType="transactionType"
+      @closeEditModal="handleCloseEditModal"
+    />
+  </div>
 </template>
 
 <style></style>

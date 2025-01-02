@@ -36,3 +36,53 @@ export async function deleteIncomeTransaction(id: number) {
     throw new Error(error)
   }
 }
+
+export async function getExpenseTransaction(id: number) {
+  try {
+    const res = await fetch(`http://13.50.203.130/api/expenses/${id}`)
+    const resData = await res.json()
+    console.log('expense-resData', resData)
+    return resData
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
+export async function getIncomeTransaction(id: number) {
+  try {
+    const res = await fetch(`http://13.50.203.130/api/incomes/${id}`)
+    const resData = await res.json()
+    console.log('income-resData', resData)
+    return resData
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
+export async function updateExpenseTransaction(id: number, payload: any) {
+  try {
+    await fetch(`http://13.50.203.130/api/expenses/${id}`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    })
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
+export async function updateIncomeTransaction(id: number, payload: any) {
+  try {
+    await fetch(`http://13.50.203.130/api/incomes/${id}`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    })
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}

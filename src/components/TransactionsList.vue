@@ -3,13 +3,15 @@ import type { TransactionType } from '../types/types'
 interface TransactionsListProps {
   data: TransactionType
 }
-interface DeleteTransactionEvent {
-  deleteTransaction: (e: 'deleteTransaction', type: string, id: number) => Promise<void>
-}
+
 // @ts-ignore
 defineProps<TransactionsListProps>()
 // @ts-ignore
-defineEmits<{ (e: 'deleteTransaction', type: string, id: number): Promise<void> }>()
+defineEmits<{
+  (e: 'deleteTransaction', type: string, id: number): Promise<void>
+
+  (e: 'editTransaction', id: number, type: string): void
+}>()
 </script>
 <template>
   <div>
@@ -50,9 +52,18 @@ defineEmits<{ (e: 'deleteTransaction', type: string, id: number): Promise<void> 
               <h3 class="text-[#fff]">{{ transaction.note }}</h3>
             </div>
             <div class="flex gap-4">
-              <h3 class="text-[#fff]">{{ transaction.amount }}</h3>
+              <h3 class="text-[#fff]">
+                {{
+                  transaction.type === 'expense' ? `- ${transaction.amount}` : transaction.amount
+                }}
+              </h3>
               <div class="flex gap-2">
-                <button class="cursor-pointer text-[#fff]">Edit</button>
+                <button
+                  @click="$emit('editTransaction', transaction.id, transaction.type)"
+                  class="cursor-pointer text-[#fff]"
+                >
+                  Edit
+                </button>
                 <button
                   @click="$emit('deleteTransaction', transaction.type, transaction.id)"
                   class="cursor-pointer text-[#fff]"
