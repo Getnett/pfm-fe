@@ -18,6 +18,36 @@ export async function fetchTranscationRecords(month: number, year: number) {
   }
 }
 
+export async function addExpenseTransaction(payload: any) {
+  try {
+    const res = await fetch('http://localhost:3000/api/expenses', {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
+    const resData = await res.json()
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
+export async function addIncomeTransaction(payload: any) {
+  try {
+    const res = await fetch('http://localhost:3000/api/incomes', {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
+    const resData = await res.json()
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
 export async function deleteExpenseTransaction(id: number) {
   try {
     // http://13.50.203.130/api/incomes
@@ -27,6 +57,7 @@ export async function deleteExpenseTransaction(id: number) {
     throw new Error(error)
   }
 }
+
 export async function deleteIncomeTransaction(id: number) {
   try {
     // http://13.50.203.130/api/incomes
@@ -109,8 +140,6 @@ export async function getAllIncomeSources() {
   }
 }
 
-// {{base_url}}analytics/expenses/monthly_total_spend?month=12&year=2024
-
 export async function getTotalSpendingInMonth(month: number, year: number) {
   try {
     const res = await fetch(
@@ -124,8 +153,6 @@ export async function getTotalSpendingInMonth(month: number, year: number) {
 }
 
 export async function getTotalIncomeInMonth(month: number, year: number) {
-  //analytics/incomes/monthly_total_income?month=12&year=2024
-
   try {
     const res = await fetch(
       `http://13.50.203.130/api/analytics/incomes/monthly_total_income?month=${month}&year=${year}`,

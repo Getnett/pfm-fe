@@ -12,6 +12,7 @@ import {
 import type { TransactionType } from '../types/types'
 import TransactionsList from '@/components/TransactionsList.vue'
 import EditTransaction from '@/components/EditTransaction.vue'
+import AddTransaction from '../components/AddTransaction.vue'
 
 interface IMonthYear {
   month: number
@@ -33,7 +34,9 @@ const transactionType = ref('')
 const date = ref<Date | IMonthYear>(new Date())
 
 // ui state data
+const openAddModal = ref(false)
 const openEditModal = ref(false)
+
 const error = ref(null)
 const loading = ref(false)
 
@@ -103,6 +106,14 @@ async function handleCloseEditModal() {
   await getTransactions(month, year)
 }
 
+async function handleOpenAddModal() {
+  openAddModal.value = true
+}
+
+async function handleCloseAddModal() {
+  openAddModal.value = false
+}
+
 onMounted(async () => {
   const month = (date.value as Date).getMonth() + 1
   const year = (date.value as Date).getFullYear()
@@ -121,48 +132,58 @@ watch(date, async (newVal: Date | IMonthYear, _oldVal: Date | IMonthYear) => {
 })
 
 // TODO
-// 1) Add transaction modal
-// 2) Loading state and error handling
-// 3) Find optimal way for the code
-// 4) If possible fix the https issue
+// 1) Loading state and error handling
+// 2) Find optimal way for the code
+// 3) If possible fix the https issue
 </script>
 <template>
   <div>
-    <div
-      class="grid justify-items-center content-center gap-2 grid-cols-4 py-4 rounded-lg bg-slate-200 text-gray-700 mb-12"
-    >
-      <div class="self-center">
-        {{
-          /* @ts-ignore */
-          date.year || date.getFullYear()
-        }}
+    <AddTransaction v-if="openAddModal" :open="openAddModal" @closeAddModal="handleCloseAddModal" />
+    <div>
+      <div class="flex gap-12">
+        <div
+          class="grid justify-items-center content-center gap-2 grid-cols-4 py-4 rounded-lg bg-slate-200 text-gray-700 mb-12"
+        >
+          <div class="self-center">
+            {{
+              /* @ts-ignore */
+              date.year || date.getFullYear()
+            }}
+          </div>
+          <div class="self-center">Expenses</div>
+          <div class="self-center">Income</div>
+          <div class="self-center">Balance</div>
+          <div class="self-center px-4">
+            <VueDatePicker v-model="date" month-picker :format="format" :clearable="false" />
+          </div>
+          <div class="self-center">{{ totalExpense.total }}</div>
+          <div class="self-center">{{ totalIncome.total }}</div>
+          <div class="self-center">
+            {{ Number(totalIncome.total) - Number(totalExpense.total) || '' }}
+          </div>
+        </div>
+        <button
+          @click="handleOpenAddModal"
+          type="button"
+          class="h-12 focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+        >
+          Add
+        </button>
       </div>
-      <div class="self-center">Expenses</div>
-      <div class="self-center">Income</div>
-      <div class="self-center">Balance</div>
-      <div class="self-center px-4">
-        <VueDatePicker v-model="date" month-picker :format="format" :clearable="false" />
-      </div>
-      <div class="self-center">{{ totalExpense.total }}</div>
-      <div class="self-center">{{ totalIncome.total }}</div>
-      <div class="self-center">
-        {{ Number(totalIncome.total) - Number(totalExpense.total) || '' }}
-      </div>
+      <TransactionsList
+        :data="data"
+        @deleteTransaction="handleDeleteTransaction"
+        @editTransaction="handleOpenEditModal"
+      />
+
+      <EditTransaction
+        v-if="openEditModal"
+        :open="openEditModal"
+        :id="transactionId"
+        :transactionType="transactionType"
+        @closeEditModal="handleCloseEditModal"
+      />
     </div>
-
-    <TransactionsList
-      :data="data"
-      @deleteTransaction="handleDeleteTransaction"
-      @editTransaction="handleOpenEditModal"
-    />
-
-    <EditTransaction
-      v-if="openEditModal"
-      :open="openEditModal"
-      :id="transactionId"
-      :transactionType="transactionType"
-      @closeEditModal="handleCloseEditModal"
-    />
   </div>
 </template>
 
