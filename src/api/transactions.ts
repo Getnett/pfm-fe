@@ -91,7 +91,7 @@ export async function updateIncomeTransaction(id: number, payload: any) {
 
 export async function getAllCategories() {
   try {
-    const res = await fetch('http://localhost:3000/api/categories')
+    const res = await fetch('http://13.50.203.130/api/categories')
     const resData = await res.json()
     return resData
   } catch (error: any) {
@@ -101,7 +101,35 @@ export async function getAllCategories() {
 
 export async function getAllIncomeSources() {
   try {
-    const res = await fetch('http://localhost:3000/api/income-sources')
+    const res = await fetch('http://13.50.203.130/api/income-sources')
+    const resData = await res.json()
+    return resData
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
+// {{base_url}}analytics/expenses/monthly_total_spend?month=12&year=2024
+
+export async function getTotalSpendingInMonth(month: number, year: number) {
+  try {
+    const res = await fetch(
+      `http://13.50.203.130/api/analytics/expenses/monthly_total_spend?month=${month}&year=${year}`,
+    )
+    const resData = await res.json()
+    return resData
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
+export async function getTotalIncomeInMonth(month: number, year: number) {
+  //analytics/incomes/monthly_total_income?month=12&year=2024
+
+  try {
+    const res = await fetch(
+      `http://13.50.203.130/api/analytics/incomes/monthly_total_income?month=${month}&year=${year}`,
+    )
     const resData = await res.json()
     return resData
   } catch (error: any) {

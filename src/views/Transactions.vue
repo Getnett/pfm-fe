@@ -1,26 +1,66 @@
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
+import VueDatePicker from '@vuepic/vue-datepicker'
+import '@vuepic/vue-datepicker/dist/main.css'
 import {
   fetchTranscationRecords,
   deleteExpenseTransaction,
   deleteIncomeTransaction,
+  getTotalSpendingInMonth,
+  getTotalIncomeInMonth,
 } from '../api/transactions'
 import type { TransactionType } from '../types/types'
 import TransactionsList from '@/components/TransactionsList.vue'
 import EditTransaction from '@/components/EditTransaction.vue'
 
+interface IMonthYear {
+  month: number
+  year: number
+}
+
+interface TotalAmount {
+  total: string | number
+}
+
 const data = ref({} as TransactionType)
-const openEditModal = ref(false)
+const totalExpense = ref<TotalAmount>({ total: '' })
+const totalIncome = ref<TotalAmount>({ total: '' })
+
+// mainly as props
 const transactionId = ref<number | null>(null)
 const transactionType = ref('')
 
+const date = ref<Date | IMonthYear>(new Date())
+
+// ui state data
+const openEditModal = ref(false)
 const error = ref(null)
 const loading = ref(false)
 
-async function getTransactions() {
+const format = (date: Date) => {
+  const month = date.getMonth()
+  const months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ]
+
+  return `${months[month]}`
+}
+
+async function getTransactions(month: number, year: number) {
   loading.value = true
   try {
-    const resData = await fetchTranscationRecords(12, 2024)
+    const resData = await fetchTranscationRecords(month, year)
     data.value = resData as TransactionType
   } catch (err: any) {
     error.value = err?.message || 'Somthing went wrong!'
@@ -29,22 +69,24 @@ async function getTransactions() {
   }
 }
 
-onMounted(async () => {
-  getTransactions()
-})
+async function getTotalSpending(month: number, year: number) {
+  totalExpense.value = await getTotalSpendingInMonth(month, year)
+}
 
-// TODO
-// 1) Layout including to add filters and summary of expenses,income and balance. [ TODO ]
-// 2) Loading state and error handling
-// 3) If possible fix the https issue
+async function getTotalIncome(month: number, year: number) {
+  totalIncome.value = await getTotalIncomeInMonth(month, year)
+}
 
 async function handleDeleteTransaction(type: string, id: number) {
+  const month = date.value?.month + 1
+  const year = date.value?.year
+
   if (type === 'expense') {
     await deleteExpenseTransaction(id)
-    await getTransactions()
+    await getTransactions(month, year)
   } else if (type === 'income') {
     await deleteIncomeTransaction(id)
-    await getTransactions()
+    await getTransactions(month, year)
   }
 }
 
@@ -55,12 +97,54 @@ function handleOpenEditModal(id: number, type: string) {
 }
 
 async function handleCloseEditModal() {
+  const month = date.value?.month + 1
+  const year = date.value?.year
   openEditModal.value = false
-  await getTransactions()
+  await getTransactions(month, year)
 }
+
+onMounted(async () => {
+  const month = date.value?.getMonth() + 1
+  const year = date.value?.getFullYear()
+  await getTransactions(month, year)
+  await getTotalSpending(month, year)
+  await getTotalIncome(month, year)
+})
+
+watch(date, async (newVal: Date | IMonthYear, _oldVal: Date | IMonthYear) => {
+  const month = newVal?.month + 1
+  const year = newVal?.year
+
+  await getTransactions(month, year)
+  await getTotalSpending(month, year)
+  await getTotalIncome(month, year)
+})
+
+// TODO
+// 1) Add transaction modal
+// 2) Loading state and error handling
+// 3) Find optimal way for the code
+// 4) If possible fix the https issue
 </script>
 <template>
   <div>
+    <div
+      class="grid justify-items-center content-center gap-2 grid-cols-4 py-4 rounded-lg bg-slate-200 text-gray-700 mb-12"
+    >
+      <div class="self-center">{{ date?.year || date?.getFullYear() }}</div>
+      <div class="self-center">Expenses</div>
+      <div class="self-center">Income</div>
+      <div class="self-center">Balance</div>
+      <div class="self-center px-4">
+        <VueDatePicker v-model="date" month-picker :format="format" :clearable="false" />
+      </div>
+      <div class="self-center">{{ totalExpense.total }}</div>
+      <div class="self-center">{{ totalIncome.total }}</div>
+      <div class="self-center">
+        {{ Number(totalIncome.total) - Number(totalExpense.total) || '' }}
+      </div>
+    </div>
+
     <TransactionsList
       :data="data"
       @deleteTransaction="handleDeleteTransaction"
