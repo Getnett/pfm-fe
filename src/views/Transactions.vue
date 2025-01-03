@@ -78,8 +78,8 @@ async function getTotalIncome(month: number, year: number) {
 }
 
 async function handleDeleteTransaction(type: string, id: number) {
-  const month = date.value?.month + 1
-  const year = date.value?.year
+  const month = (date.value as IMonthYear).month + 1
+  const year = (date.value as IMonthYear).year
 
   if (type === 'expense') {
     await deleteExpenseTransaction(id)
@@ -97,23 +97,23 @@ function handleOpenEditModal(id: number, type: string) {
 }
 
 async function handleCloseEditModal() {
-  const month = date.value?.month + 1
-  const year = date.value?.year
+  const month = (date.value as IMonthYear).month + 1
+  const year = (date.value as IMonthYear).year
   openEditModal.value = false
   await getTransactions(month, year)
 }
 
 onMounted(async () => {
-  const month = date.value?.getMonth() + 1
-  const year = date.value?.getFullYear()
+  const month = (date.value as Date).getMonth() + 1
+  const year = (date.value as Date).getFullYear()
   await getTransactions(month, year)
   await getTotalSpending(month, year)
   await getTotalIncome(month, year)
 })
 
 watch(date, async (newVal: Date | IMonthYear, _oldVal: Date | IMonthYear) => {
-  const month = newVal?.month + 1
-  const year = newVal?.year
+  const month = (newVal as IMonthYear).month + 1
+  const year = (newVal as IMonthYear).year
 
   await getTransactions(month, year)
   await getTotalSpending(month, year)
@@ -131,7 +131,7 @@ watch(date, async (newVal: Date | IMonthYear, _oldVal: Date | IMonthYear) => {
     <div
       class="grid justify-items-center content-center gap-2 grid-cols-4 py-4 rounded-lg bg-slate-200 text-gray-700 mb-12"
     >
-      <div class="self-center">{{ date?.year || date?.getFullYear() }}</div>
+      <div class="self-center">{{ date.year || date.getFullYear() }}</div>
       <div class="self-center">Expenses</div>
       <div class="self-center">Income</div>
       <div class="self-center">Balance</div>
