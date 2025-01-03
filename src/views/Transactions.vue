@@ -131,7 +131,12 @@ watch(date, async (newVal: Date | IMonthYear, _oldVal: Date | IMonthYear) => {
     <div
       class="grid justify-items-center content-center gap-2 grid-cols-4 py-4 rounded-lg bg-slate-200 text-gray-700 mb-12"
     >
-      <div class="self-center">{{ date.year || date.getFullYear() }}</div>
+      <div class="self-center">
+        {{
+          /* @ts-ignore */
+          date.year || date.getFullYear()
+        }}
+      </div>
       <div class="self-center">Expenses</div>
       <div class="self-center">Income</div>
       <div class="self-center">Balance</div>
