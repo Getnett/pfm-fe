@@ -105,22 +105,6 @@ watch(transactionType, async (newValue, oldValue) => {
                           </div>
                         </div>
                         <div>
-                          <div class="flex items-center justify-between">
-                            <label for="note" class="block text-sm/6 font-medium text-gray-900"
-                              >Note</label
-                            >
-                          </div>
-                          <div class="mt-2">
-                            <textarea
-                              id="note"
-                              name="note"
-                              v-model="note"
-                              autocomplete="note"
-                              class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                            />
-                          </div>
-                        </div>
-                        <div>
                           <label for="date" class="mb-2 block text-sm/6 font-medium text-gray-900"
                             >Date</label
                           >
@@ -232,6 +216,22 @@ watch(transactionType, async (newValue, oldValue) => {
                                 clip-rule="evenodd"
                               />
                             </svg>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="flex items-center justify-between">
+                            <label for="note" class="block text-sm/6 font-medium text-gray-900"
+                              >Note</label
+                            >
+                          </div>
+                          <div class="mt-2">
+                            <textarea
+                              id="note"
+                              name="note"
+                              v-model="note"
+                              autocomplete="note"
+                              class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                            />
                           </div>
                         </div>
                       </form>
