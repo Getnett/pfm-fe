@@ -6,20 +6,31 @@ import { CanvasRenderer } from 'echarts/renderers'
 import { PieChart } from 'echarts/charts'
 import { TitleComponent, TooltipComponent, LegendComponent } from 'echarts/components'
 import VChart, { THEME_KEY } from 'vue-echarts'
-import { onMounted } from 'vue'
-import { getExpensesYearlyAnalytics } from '../api/chart'
+import { Splide, SplideSlide } from '@splidejs/vue-splide'
+// Default theme
+import '@splidejs/vue-splide/css'
+
+// or only core styles
+import '@splidejs/vue-splide/css/core'
+
+import {
+  getExpensesYearlyAnalytics,
+  getYearlyMonthlySpend,
+  getExpensesMonthlyAnalytics,
+} from '../api/chart'
 
 const transactionType = ref('expense')
 const period = ref<'monthly' | 'yearly'>('monthly')
 const date = ref<null | number | { month: number; year: number }>(null)
+const historyObj = ref(null)
 
 use([CanvasRenderer, PieChart, TitleComponent, TooltipComponent, LegendComponent])
 
 provide(THEME_KEY, 'light')
 
-const option = ref({
+const expenseYearlyData = ref({
   title: {
-    text: '',
+    text: 'Yearly data by category',
     left: 'center',
   },
   tooltip: {
@@ -28,14 +39,20 @@ const option = ref({
   },
   legend: {
     orient: 'vertical',
-    left: 'left',
+    left: 'right',
+    align: 'left',
+    formatter: (name: string) => {
+      return `${name}`
+    },
+    // left: 'right',
     data: [],
   },
   series: [
     {
-      name: 'Traffic Sources',
+      name: 'Expense yearly data by category',
       type: 'pie',
-      radius: '55%',
+      radius: ['40%', '70%'],
+      // radius: '55%',
       center: ['50%', '60%'],
       data: [],
       emphasis: {
@@ -47,6 +64,56 @@ const option = ref({
       },
     },
   ],
+})
+const expenseYearlyDataByMonth = ref({
+  title: {
+    text: 'Yearly data by each month',
+    left: 'center',
+  },
+  tooltip: {
+    trigger: 'item',
+    // formatter: '{a} <br/>{b} : {c} ({d}%)',
+  },
+  legend: {
+    orient: 'vertical',
+    left: 'right',
+    align: 'left',
+    formatter: (name: string) => {
+      return `${name}`
+    },
+    data: [],
+  },
+  series: [
+    {
+      name: 'Expense yearly monthly data',
+      type: 'pie',
+      radius: ['40%', '70%'],
+      center: ['50%', '60%'],
+      data: [],
+      emphasis: {
+        itemStyle: {
+          shadowBlur: 10,
+          shadowOffsetX: 0,
+          shadowColor: 'rgba(0, 0, 0, 0.5)',
+        },
+      },
+    },
+  ],
+  graphic: {
+    elements: [
+      {
+        type: 'text',
+        left: 'center',
+        top: 'middle',
+        style: {
+          text: 'Custom Text',
+          fontSize: 18,
+          fontWeight: 'bold',
+          fill: '#333', // Text color
+        },
+      },
+    ],
+  },
 })
 
 const format = (date: Date) => {
@@ -73,19 +140,56 @@ const format = (date: Date) => {
 watchEffect(async () => {
   if (transactionType.value === 'expense' && period.value === 'yearly') {
     const resData = await getExpensesYearlyAnalytics(date.value as number)
-    option.value.series[0]['data'] = resData.map((item: any) => ({
+    expenseYearlyData.value.series[0]['data'] = resData.map((item: any) => ({
       name: item.categoryName,
       value: item.total,
     }))
-    option.value.legend.data = resData.map((item: any) => item.categoryName)
+
+    // organize later
+    historyObj.value = resData
+
+    const fperc = (name: string) => {
+      // Find the corresponding data item
+      const item = resData.find((item: any) => item.categoryName === name)
+
+      return `${item.categoryName}           ${item.percentage}%`
+    }
+
+    expenseYearlyData.value.legend.formatter = fperc
+
+    expenseYearlyData.value.legend.data = resData.map((item: any) => item.categoryName)
+
+    const resDataByMon = await getYearlyMonthlySpend(date.value as number)
+    expenseYearlyDataByMonth.value.series[0]['data'] = resDataByMon.map((item: any) => ({
+      name: item.month,
+      value: item.total,
+    }))
+
+    const fvalue = (name: string) => {
+      // Find the corresponding data item
+      const item = resDataByMon.find((item: any) => item.month === name)
+
+      return `${item.month}           ${item.total}`
+    }
+
+    expenseYearlyDataByMonth.value.legend.formatter = fvalue
+
+    expenseYearlyDataByMonth.value.legend.data = resDataByMon.map((item: any) => item.month)
+  } else if (transactionType.value === 'expense' && period.value === 'monthly') {
+    // const month = Number(date.value?.month) + 1
+    // const year = Number(date.value?.year)
+    // const resData = await getExpensesMonthlyAnalytics(month, year)
+    // expenseYearlyData.value.series[0]['data'] = resData.map((item: any) => ({
+    //   name: item.categoryName,
+    //   value: item.total,
+    // }))
   }
 })
 </script>
 
 <template>
-  <div>
+  <div class="h-full">
     <div class="flex gap-12 justify-center w-full">
-      {{ date }}
       <div>
         <label for="transaction-type" class="block text-sm/6 font-medium text-gray-900"
           >Transaction type</label
@@ -163,9 +267,65 @@ watchEffect(async () => {
         />
       </div>
     </div>
+    <div class="max-w-5xl max-h-full flex flex-col gap-8 mt-8 justify-center m-auto">
+      <Splide
+        v-if="date !== null"
+        :options="{ rewind: true, heightRation: 0.7, fixedHeight: '15rem' }"
+        aria-label="Yearly Analytics"
+      >
+        <SplideSlide>
+          <!-- <div class="w-sm h-80 bg-green-500 flex items-center justify-center">Image1</div> -->
+          <div class="h-80" v-if="date !== null">
+            <VChart
+              class="h-52 bg-gray-100 rounded-md shadow-md"
+              :option="expenseYearlyData"
+              autoresize
+            />
+          </div>
+        </SplideSlide>
+        <SplideSlide>
+          <!-- <div class="w-sm h-80 bg-yellow-300 flex items-center justify-center">Image 2</div> -->
+          <div class="h-80" v-if="date !== null">
+            <VChart
+              class="h-52 bg-gray-100 rounded-md shadow-md"
+              :option="expenseYearlyDataByMonth"
+              autoresize
+            />
+          </div>
+        </SplideSlide>
+      </Splide>
+    </div>
 
-    <div v-if="!!date">
-      <VChart class="h-96" :option="option" autoresize />
+    <div v-if="date !== null">
+      <ul role="list" class="divide-y divide-gray-100">
+        <li v-for="record in historyObj" :key="record.catId">
+          <div class="flex justify-between">
+            <div class="flex gap-4 mb-1 text-base font-medium text-gray-700 capitalize">
+              <span>{{ record.categoryName }}</span>
+              <span>{{ record.percentage }}%</span>
+            </div>
+            <div>{{ record.total }}</div>
+          </div>
+
+          <div class="w-full bg-gray-200 rounded-full h-2.5 mb-4">
+            <div
+              class="bg-[#dad122] h-2.5 rounded-full"
+              style="width: 45%"
+              :style="{ width: record.percentage + '%' }"
+            ></div>
+          </div>
+        </li>
+      </ul>
+      <!-- <div :style="{ 'font-size': fontSize + 'px' }"></div> -->
+      <!-- <div v-for="record in historyObj" :key="record.catId">
+        <div class="flex justify-between">
+          <div class="flex gap-4 justify-center">
+            <div>{{ record.categoryName }}</div>
+            <div>{{ record.percentage }}%</div>
+          </div>
+          <div>{{ record.total }}</div>
+        </div>
+      </div> -->
     </div>
   </div>
 </template>

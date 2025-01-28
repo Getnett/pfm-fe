@@ -8,4 +8,26 @@ export async function getExpensesYearlyAnalytics(year: number) {
   }
 }
 
-export async function getExpensesMonthlyAnalytics() {}
+export async function getExpensesMonthlyAnalytics(month: number, year: number) {
+  try {
+    const res = await fetch(
+      `http://localhost:3000/api/analytics/expenses/monthly_data?month=${month}&year=${year}`,
+    )
+    const resData = await res.json()
+    return resData
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
+export async function getYearlyMonthlySpend(year: number) {
+  try {
+    const res = await fetch(
+      `http://localhost:3000/api/analytics/expenses/yearly_monthly_spend?year=${year}`,
+    )
+    const resData = await res.json()
+    return resData
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
