@@ -6,6 +6,7 @@ import { CanvasRenderer } from 'echarts/renderers'
 import { PieChart } from 'echarts/charts'
 import { TitleComponent, TooltipComponent, LegendComponent } from 'echarts/components'
 import VChart, { THEME_KEY } from 'vue-echarts'
+// @ts-ignore
 import { Splide, SplideSlide } from '@splidejs/vue-splide'
 // Default theme
 import '@splidejs/vue-splide/css'
