@@ -22,7 +22,15 @@ import {
 const transactionType = ref('expense')
 const period = ref<'monthly' | 'yearly'>('monthly')
 const date = ref<null | number | { month: number; year: number }>(null)
-const historyObj = ref(null)
+// change the name here
+const historyObj = ref<
+  {
+    total: string
+    categoryName: string
+    catId: number
+    percentage: string
+  }[]
+>([])
 
 use([CanvasRenderer, PieChart, TitleComponent, TooltipComponent, LegendComponent])
 
@@ -316,16 +324,6 @@ watchEffect(async () => {
           </div>
         </li>
       </ul>
-      <!-- <div :style="{ 'font-size': fontSize + 'px' }"></div> -->
-      <!-- <div v-for="record in historyObj" :key="record.catId">
-        <div class="flex justify-between">
-          <div class="flex gap-4 justify-center">
-            <div>{{ record.categoryName }}</div>
-            <div>{{ record.percentage }}%</div>
-          </div>
-          <div>{{ record.total }}</div>
-        </div>
-      </div> -->
     </div>
   </div>
 </template>
