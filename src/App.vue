@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
 // make all immdeiate child elements go black [&_*]:text-black
 </script>
 

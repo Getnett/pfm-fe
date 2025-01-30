@@ -20,7 +20,7 @@ export async function fetchTranscationRecords(month: number, year: number) {
 
 export async function addExpenseTransaction(payload: any) {
   try {
-    const res = await fetch('http://localhost:3000/api/expenses', {
+    const res = await fetch('http://13.50.203.130/api/expenses', {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -35,7 +35,7 @@ export async function addExpenseTransaction(payload: any) {
 
 export async function addIncomeTransaction(payload: any) {
   try {
-    const res = await fetch('http://localhost:3000/api/incomes', {
+    const res = await fetch('http://13.50.203.130/api/incomes', {
       headers: {
         'Content-Type': 'application/json',
       },

@@ -3,8 +3,13 @@ import { ref, provide, watchEffect } from 'vue'
 import VueDatePicker from '@vuepic/vue-datepicker'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
-import { PieChart } from 'echarts/charts'
-import { TitleComponent, TooltipComponent, LegendComponent } from 'echarts/components'
+import { LineChart, PieChart } from 'echarts/charts'
+import {
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+  GridComponent,
+} from 'echarts/components'
 import VChart, { THEME_KEY } from 'vue-echarts'
 // @ts-ignore
 import { Splide, SplideSlide } from '@splidejs/vue-splide'
@@ -19,21 +24,34 @@ import {
   getYearlyMonthlySpend,
   getExpensesMonthlyAnalytics,
 } from '../api/chart'
+import { useRoute, useRouter } from 'vue-router'
 
 const transactionType = ref('expense')
 const period = ref<'monthly' | 'yearly'>('monthly')
 const date = ref<null | number | { month: number; year: number }>(null)
+const route = useRoute()
+const router = useRouter()
+
 // change the name here
-const historyObj = ref<
+const yearlyExpense = ref<
   {
     total: string
     categoryName: string
     catId: number
     percentage: string
+    year: string
   }[]
 >([])
 
-use([CanvasRenderer, PieChart, TitleComponent, TooltipComponent, LegendComponent])
+use([
+  CanvasRenderer,
+  PieChart,
+  LineChart,
+  GridComponent,
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+])
 
 provide(THEME_KEY, 'light')
 
@@ -125,6 +143,40 @@ const expenseYearlyDataByMonth = ref({
   },
 })
 
+const expenseYearlyDataByMonthLineChart = ref({
+  title: {
+    text: 'Yearly data by each month',
+    left: 'center',
+  },
+  tooltip: {
+    trigger: 'item',
+    // formatter: '{a} <br/>{b} : {c} ({d}%)',
+  },
+  legend: {
+    orient: 'vertical',
+    left: 'right',
+    align: 'left',
+    formatter: (name: string) => {
+      return `${name}`
+    },
+    data: [],
+  },
+  xAxis: {
+    type: 'category',
+    data: [],
+  },
+  lengend: {},
+  yAxis: {
+    type: 'value',
+  },
+  series: [
+    {
+      data: [],
+      type: 'line',
+    },
+  ],
+})
+
 const format = (date: Date) => {
   const month = date.getMonth()
   const year = date.getFullYear()
@@ -146,6 +198,10 @@ const format = (date: Date) => {
   return period.value === 'monthly' ? `${months[month]}` : `${year}`
 }
 
+const openExpenseCategoryDetail = (catId: number, year: number) => {
+  router.push(`/expenses/yearly-category-data?catId=${catId}&year=${year}`)
+}
+
 watchEffect(async () => {
   if (transactionType.value === 'expense' && period.value === 'yearly') {
     const resData = await getExpensesYearlyAnalytics(date.value as number)
@@ -155,7 +211,7 @@ watchEffect(async () => {
     }))
 
     // organize later
-    historyObj.value = resData
+    yearlyExpense.value = resData
 
     const fperc = (name: string) => {
       // Find the corresponding data item
@@ -169,7 +225,14 @@ watchEffect(async () => {
     expenseYearlyData.value.legend.data = resData.map((item: any) => item.categoryName)
 
     const resDataByMon = await getYearlyMonthlySpend(date.value as number)
+
     expenseYearlyDataByMonth.value.series[0]['data'] = resDataByMon.map((item: any) => ({
+      name: item.month,
+      value: item.total,
+    }))
+
+    // for the line chart
+    expenseYearlyDataByMonthLineChart.value.series[0]['data'] = resDataByMon.map((item: any) => ({
       name: item.month,
       value: item.total,
     }))
@@ -184,6 +247,13 @@ watchEffect(async () => {
     expenseYearlyDataByMonth.value.legend.formatter = fvalue
 
     expenseYearlyDataByMonth.value.legend.data = resDataByMon.map((item: any) => item.month)
+
+    // for the line chart
+    expenseYearlyDataByMonthLineChart.value.legend.formatter = fvalue
+    expenseYearlyDataByMonthLineChart.value.xAxis.data = resDataByMon.map((item: any) => item.month)
+    expenseYearlyDataByMonthLineChart.value.legend.data = resDataByMon.map(
+      (item: any) => item.month,
+    )
   } else if (transactionType.value === 'expense' && period.value === 'monthly') {
     // const month = Number(date.value?.month) + 1
     // const year = Number(date.value?.year)
@@ -302,12 +372,28 @@ watchEffect(async () => {
             />
           </div>
         </SplideSlide>
+        <SplideSlide>
+          <!-- <div class="w-sm h-80 bg-yellow-300 flex items-center justify-center">Image 2</div> -->
+
+          <div class="h-80" v-if="date !== null">
+            <VChart
+              class="h-52 bg-gray-100 rounded-md shadow-md"
+              :option="expenseYearlyDataByMonthLineChart"
+              autoresize
+            />
+          </div>
+        </SplideSlide>
       </Splide>
     </div>
 
-    <div v-if="date !== null">
+    <div v-if="date !== null && yearlyExpense.length">
       <ul role="list" class="divide-y divide-gray-100">
-        <li v-for="record in historyObj" :key="record.catId">
+        <li
+          v-for="record in yearlyExpense"
+          :key="record.catId"
+          class="cursor-pointer"
+          @click="openExpenseCategoryDetail(Number(record.catId), Number(record.year))"
+        >
           <div class="flex justify-between">
             <div class="flex gap-4 mb-1 text-base font-medium text-gray-700 capitalize">
               <span>{{ record.categoryName }}</span>
