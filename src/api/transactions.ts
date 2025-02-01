@@ -1,6 +1,8 @@
 export async function fetchTranscationRecords(month: number, year: number) {
   try {
-    const res = await fetch(`http://13.50.203.130/api/transactions?month=${month}&year=${year}`)
+    const res = await fetch(
+      `https://pfm.mypfmpupwrk.info/api/transactions?month=${month}&year=${year}`,
+    )
     const transactionsData = await res.json()
 
     let transactionsGroupedByDate: any = {}
@@ -20,7 +22,7 @@ export async function fetchTranscationRecords(month: number, year: number) {
 
 export async function addExpenseTransaction(payload: any) {
   try {
-    const res = await fetch('http://13.50.203.130/api/expenses', {
+    const res = await fetch('https://pfm.mypfmpupwrk.info/api/expenses', {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -35,7 +37,7 @@ export async function addExpenseTransaction(payload: any) {
 
 export async function addIncomeTransaction(payload: any) {
   try {
-    const res = await fetch('http://13.50.203.130/api/incomes', {
+    const res = await fetch('https://pfm.mypfmpupwrk.info/api/incomes', {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -51,7 +53,7 @@ export async function addIncomeTransaction(payload: any) {
 export async function deleteExpenseTransaction(id: number) {
   try {
     // http://13.50.203.130/api/incomes
-    const res = await fetch(`http://13.50.203.130/api/expenses/${id}`, { method: 'DELETE' })
+    const res = await fetch(`https://pfm.mypfmpupwrk.info/api/expenses/${id}`, { method: 'DELETE' })
     console.log('res', res.body)
   } catch (error: any) {
     throw new Error(error)
@@ -61,7 +63,7 @@ export async function deleteExpenseTransaction(id: number) {
 export async function deleteIncomeTransaction(id: number) {
   try {
     // http://13.50.203.130/api/incomes
-    const res = await fetch(`http://13.50.203.130/api/incomes/${id}`, { method: 'DELETE' })
+    const res = await fetch(`https://pfm.mypfmpupwrk.info/api/incomes/${id}`, { method: 'DELETE' })
     console.log('res', res.body)
   } catch (error: any) {
     throw new Error(error)
@@ -70,7 +72,7 @@ export async function deleteIncomeTransaction(id: number) {
 
 export async function getExpenseTransaction(id: number) {
   try {
-    const res = await fetch(`http://13.50.203.130/api/expenses/${id}`)
+    const res = await fetch(`https://pfm.mypfmpupwrk.info/api/expenses/${id}`)
     const resData = await res.json()
     console.log('expense-resData', resData)
     return resData
@@ -81,7 +83,7 @@ export async function getExpenseTransaction(id: number) {
 
 export async function getIncomeTransaction(id: number) {
   try {
-    const res = await fetch(`http://13.50.203.130/api/incomes/${id}`)
+    const res = await fetch(`https://pfm.mypfmpupwrk.info/api/incomes/${id}`)
     const resData = await res.json()
     console.log('income-resData', resData)
     return resData
@@ -92,7 +94,7 @@ export async function getIncomeTransaction(id: number) {
 
 export async function updateExpenseTransaction(id: number, payload: any) {
   try {
-    await fetch(`http://13.50.203.130/api/expenses/${id}`, {
+    await fetch(`https://pfm.mypfmpupwrk.info/api/expenses/${id}`, {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -106,7 +108,7 @@ export async function updateExpenseTransaction(id: number, payload: any) {
 
 export async function updateIncomeTransaction(id: number, payload: any) {
   try {
-    await fetch(`http://13.50.203.130/api/incomes/${id}`, {
+    await fetch(`https://pfm.mypfmpupwrk.info/api/incomes/${id}`, {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -122,7 +124,7 @@ export async function updateIncomeTransaction(id: number, payload: any) {
 
 export async function getAllCategories() {
   try {
-    const res = await fetch('http://13.50.203.130/api/categories')
+    const res = await fetch('https://pfm.mypfmpupwrk.info/api/categories')
     const resData = await res.json()
     return resData
   } catch (error: any) {
@@ -132,7 +134,7 @@ export async function getAllCategories() {
 
 export async function getAllIncomeSources() {
   try {
-    const res = await fetch('http://13.50.203.130/api/income-sources')
+    const res = await fetch('https://pfm.mypfmpupwrk.info/api/income-sources')
     const resData = await res.json()
     return resData
   } catch (error: any) {
@@ -143,7 +145,7 @@ export async function getAllIncomeSources() {
 export async function getTotalSpendingInMonth(month: number, year: number) {
   try {
     const res = await fetch(
-      `http://13.50.203.130/api/analytics/expenses/monthly_total_spend?month=${month}&year=${year}`,
+      `https://pfm.mypfmpupwrk.info/api/analytics/expenses/monthly_total_spend?month=${month}&year=${year}`,
     )
     const resData = await res.json()
     return resData
@@ -155,7 +157,7 @@ export async function getTotalSpendingInMonth(month: number, year: number) {
 export async function getTotalIncomeInMonth(month: number, year: number) {
   try {
     const res = await fetch(
-      `http://13.50.203.130/api/analytics/incomes/monthly_total_income?month=${month}&year=${year}`,
+      `https://pfm.mypfmpupwrk.info/api/analytics/incomes/monthly_total_income?month=${month}&year=${year}`,
     )
     const resData = await res.json()
     return resData
