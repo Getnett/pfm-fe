@@ -5,7 +5,16 @@ import EditTransaction from '../components/EditTransaction.vue'
 import { getYearlyExpenseAnalyticsByCategory } from '../api/chart'
 import { ref } from 'vue'
 const route = useRoute()
-const expenseData = ref([])
+const expenseData = ref<
+  {
+    expenseId: number
+    note: string
+    categoryName: string
+    date: string
+    amount: number
+    percentage: string
+  }[]
+>([])
 const openEditModal = ref(false)
 const transactionId = ref<number | null>(null)
 // {
