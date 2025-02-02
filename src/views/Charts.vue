@@ -23,6 +23,7 @@ import {
   getExpensesYearlyAnalytics,
   getYearlyMonthlySpend,
   getExpensesMonthlyAnalytics,
+  getMonthlyDailySpend,
 } from '../api/chart'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -40,6 +41,15 @@ const yearlyExpense = ref<
     catId: number
     percentage: string
     year: string
+  }[]
+>([])
+
+const monthlyExpense = ref<
+  {
+    total: string
+    categoryName: string
+    catId: number
+    percentage: string
   }[]
 >([])
 
@@ -92,6 +102,7 @@ const expenseYearlyData = ref({
     },
   ],
 })
+
 const expenseYearlyDataByMonth = ref({
   title: {
     text: 'Yearly data by each month',
@@ -143,9 +154,132 @@ const expenseYearlyDataByMonth = ref({
   },
 })
 
+const expenseMonthlyData = ref({
+  title: {
+    text: 'Monthly data by category',
+    left: 'center',
+  },
+  tooltip: {
+    trigger: 'item',
+    formatter: '{a} <br/>{b} : {c} ({d}%)',
+  },
+  legend: {
+    orient: 'vertical',
+    left: 'right',
+    align: 'left',
+    formatter: (name: string) => {
+      return `${name}`
+    },
+    // left: 'right',
+    data: [],
+  },
+  series: [
+    {
+      name: 'Expense monthly data by category',
+      type: 'pie',
+      radius: ['40%', '70%'],
+      // radius: '55%',
+      center: ['50%', '60%'],
+      data: [],
+      emphasis: {
+        itemStyle: {
+          shadowBlur: 10,
+          shadowOffsetX: 0,
+          shadowColor: 'rgba(0, 0, 0, 0.5)',
+        },
+      },
+    },
+  ],
+})
+
+const expenseMonthlyDailyData = ref({
+  title: {
+    text: 'Monthly data by day',
+    left: 'center',
+  },
+  tooltip: {
+    trigger: 'item',
+    // formatter: '{a} <br/>{b} : {c} ({d}%)',
+  },
+  legend: {
+    orient: 'vertical',
+    left: 'right',
+    align: 'left',
+    formatter: (name: string) => {
+      return `${name}`
+    },
+    data: [],
+  },
+  series: [
+    {
+      name: 'Expense  monthly daily data',
+      type: 'pie',
+      radius: ['40%', '70%'],
+      center: ['50%', '60%'],
+      data: [],
+      emphasis: {
+        itemStyle: {
+          shadowBlur: 10,
+          shadowOffsetX: 0,
+          shadowColor: 'rgba(0, 0, 0, 0.5)',
+        },
+      },
+    },
+  ],
+  graphic: {
+    elements: [
+      {
+        type: 'text',
+        left: 'center',
+        top: 'middle',
+        style: {
+          text: 'Custom Text',
+          fontSize: 18,
+          fontWeight: 'bold',
+          fill: '#333', // Text color
+        },
+      },
+    ],
+  },
+})
+
 const expenseYearlyDataByMonthLineChart = ref({
   title: {
     text: 'Yearly data by each month',
+    left: 'center',
+  },
+  tooltip: {
+    trigger: 'item',
+    // formatter: '{a} <br/>{b} : {c} ({d}%)',
+  },
+  legend: {
+    orient: 'vertical',
+    left: 'right',
+    align: 'left',
+    formatter: (name: string) => {
+      return `${name}`
+    },
+    data: [],
+  },
+  xAxis: {
+    type: 'category',
+    data: [],
+  },
+  lengend: {},
+  yAxis: {
+    type: 'value',
+  },
+  series: [
+    {
+      data: [],
+      type: 'line',
+    },
+  ],
+})
+
+const expenseDailyMonthlyDataLineChart = ref({
+  title: {
+    text: 'Daily monthly data',
     left: 'center',
   },
   tooltip: {
@@ -224,6 +358,7 @@ watchEffect(async () => {
 
     expenseYearlyData.value.legend.data = resData.map((item: any) => item.categoryName)
 
+    // monthly
     const resDataByMon = await getYearlyMonthlySpend(date.value as number)
 
     expenseYearlyDataByMonth.value.series[0]['data'] = resDataByMon.map((item: any) => ({
@@ -255,13 +390,54 @@ watchEffect(async () => {
       (item: any) => item.month,
     )
   } else if (transactionType.value === 'expense' && period.value === 'monthly') {
-    // const month = Number(date.value?.month) + 1
-    // const year = Number(date.value?.year)
-    // const resData = await getExpensesMonthlyAnalytics(month, year)
-    // expenseYearlyData.value.series[0]['data'] = resData.map((item: any) => ({
-    //   name: item.categoryName,
-    //   value: item.total,
-    // }))
+    const month = Number(date.value?.month) + 1
+    const year = Number(date.value?.year)
+
+    const resData = await getExpensesMonthlyAnalytics(month, year)
+    monthlyExpense.value = resData
+
+    const fperc = (name: string) => {
+      // Find the corresponding data item
+      const item = resData.find((item: any) => item.categoryName === name)
+
+      return `${item.categoryName}           ${item.percentage}%`
+    }
+
+    expenseMonthlyData.value.legend.formatter = fperc
+
+    expenseMonthlyData.value.legend.data = resData.map((item: any) => item.categoryName)
+
+    expenseMonthlyData.value.series[0]['data'] = resData.map((item: any) => ({
+      name: item.categoryName,
+      value: item.total,
+    }))
+
+    // daily
+    const resDataDaily = await getMonthlyDailySpend(month, year)
+
+    const fvalue = (name: string) => {
+      // Find the corresponding data item
+      const item = resDataDaily.find((item: any) => item.date === name)
+
+      return `${item.date}           ${item.amount}`
+    }
+    expenseMonthlyDailyData.value.series[0]['data'] = resDataDaily.map((item: any) => ({
+      name: item.date,
+      value: item.amount,
+    }))
+
+    expenseMonthlyDailyData.value.legend.formatter = fvalue
+    //  expenseYearlyDataByMonth.value.legend.data = resDataByMon.map((item: any) => item.month)
+    expenseMonthlyDailyData.value.legend.data = resDataDaily.map((item: any) => item.date)
+
+    // expenseDailyMonthlyDataLineChart
+    expenseDailyMonthlyDataLineChart.value.series[0]['data'] = resDataDaily.map((item: any) => ({
+      name: item.date,
+      value: item.amount,
+    }))
+    expenseDailyMonthlyDataLineChart.value.legend.formatter = fvalue
+    expenseDailyMonthlyDataLineChart.value.xAxis.data = resDataDaily.map((item: any) => item.date)
+    expenseDailyMonthlyDataLineChart.value.legend.data = resDataDaily.map((item: any) => item.date)
   }
 })
 </script>
@@ -348,7 +524,7 @@ watchEffect(async () => {
     </div>
     <div class="max-w-5xl max-h-full flex flex-col gap-8 mt-8 justify-center m-auto">
       <Splide
-        v-if="date !== null"
+        v-if="date !== null && yearlyExpense.length"
         :options="{ rewind: true, heightRation: 0.7, fixedHeight: '15rem' }"
         aria-label="Yearly Analytics"
       >
@@ -384,6 +560,42 @@ watchEffect(async () => {
           </div>
         </SplideSlide>
       </Splide>
+      <Splide
+        v-if="date !== null && monthlyExpense.length"
+        :options="{ rewind: true, heightRation: 0.7, fixedHeight: '15rem' }"
+        aria-label="Yearly Analytics"
+      >
+        <SplideSlide>
+          <!-- <div class="w-sm h-80 bg-green-500 flex items-center justify-center">Image1</div> -->
+          <div class="h-80" v-if="date !== null">
+            <VChart
+              class="h-52 bg-gray-100 rounded-md shadow-md"
+              :option="expenseMonthlyData"
+              autoresize
+            />
+          </div>
+        </SplideSlide>
+        <SplideSlide>
+          <!-- <div class="w-sm h-80 bg-yellow-300 flex items-center justify-center">Image 2</div> -->
+          <div class="h-80" v-if="date !== null">
+            <VChart
+              class="h-52 bg-gray-100 rounded-md shadow-md"
+              :option="expenseMonthlyDailyData"
+              autoresize
+            />
+          </div>
+        </SplideSlide>
+        <SplideSlide>
+          <!-- <div class="w-sm h-80 bg-yellow-300 flex items-center justify-center">Image 2</div> -->
+          <div class="h-80" v-if="date !== null">
+            <VChart
+              class="h-52 bg-gray-100 rounded-md shadow-md"
+              :option="expenseDailyMonthlyDataLineChart"
+              autoresize
+            />
+          </div>
+        </SplideSlide>
+      </Splide>
     </div>
 
     <div v-if="date !== null && yearlyExpense.length">
@@ -394,6 +606,28 @@ watchEffect(async () => {
           class="cursor-pointer"
           @click="openExpenseCategoryDetail(Number(record.catId), Number(record.year))"
         >
+          <div class="flex justify-between">
+            <div class="flex gap-4 mb-1 text-base font-medium text-gray-700 capitalize">
+              <span>{{ record.categoryName }}</span>
+              <span>{{ record.percentage }}%</span>
+            </div>
+            <div>{{ record.total }}</div>
+          </div>
+
+          <div class="w-full bg-gray-200 rounded-full h-2.5 mb-4">
+            <div
+              class="bg-[#dad122] h-2.5 rounded-full"
+              style="width: 45%"
+              :style="{ width: record.percentage + '%' }"
+            ></div>
+          </div>
+        </li>
+      </ul>
+    </div>
+    <!-- monthly data -->
+    <div v-if="date !== null && monthlyExpense.length">
+      <ul role="list" class="divide-y divide-gray-100">
+        <li v-for="record in monthlyExpense" :key="record.catId" class="cursor-pointer">
           <div class="flex justify-between">
             <div class="flex gap-4 mb-1 text-base font-medium text-gray-700 capitalize">
               <span>{{ record.categoryName }}</span>
