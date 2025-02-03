@@ -57,3 +57,19 @@ export async function getYearlyExpenseAnalyticsByCategory(catId: number, year: n
     throw new Error(error)
   }
 }
+
+export async function getMonthlyExpenseAnalyticsByCategory(
+  catId: number,
+  month: number,
+  year: number,
+) {
+  try {
+    const res = await fetch(
+      `https://pfm.mypfmpupwrk.info/api/analytics/expenses/category_monthly_data?catId=${catId}&month=${month}&year=${year}`,
+    )
+    const resData = await res.json()
+    return resData
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}

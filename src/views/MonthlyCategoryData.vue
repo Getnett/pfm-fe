@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, onMounted } from 'vue'
 import EditTransaction from '../components/EditTransaction.vue'
-import { getYearlyExpenseAnalyticsByCategory } from '../api/chart'
-import { ref } from 'vue'
+import { getMonthlyExpenseAnalyticsByCategory } from '../api/chart'
+import { useRoute } from 'vue-router'
 
 const route = useRoute()
+const openEditModal = ref(false)
+const transactionId = ref<number | null>(null)
 const expenseData = ref<
   {
     expenseId: number
@@ -16,30 +17,25 @@ const expenseData = ref<
     percentage: string
   }[]
 >([])
-const openEditModal = ref(false)
-const transactionId = ref<number | null>(null)
 
-onMounted(async () => {
-  try {
-    const resData = await getYearlyExpenseAnalyticsByCategory(
-      Number(route.query.catId),
-      Number(route.query.year),
-    )
-    expenseData.value = resData
-  } catch (error: any) {
-    throw new Error(error)
-  }
-})
-
-const handleOpenEditTransaction = (expenseId: number) => {
+function handleOpenEditTransaction(expenseId: number) {
   openEditModal.value = true
   transactionId.value = expenseId
 }
 
-const handleCloseEditModal = () => {
+function handleCloseEditModal() {
   openEditModal.value = false
 }
+
+onMounted(async () => {
+  expenseData.value = await getMonthlyExpenseAnalyticsByCategory(
+    Number(route.query.catId),
+    Number(route.query.month),
+    Number(route.query.year),
+  )
+})
 </script>
+
 <template>
   <div>
     <ul role="list" class="divide-y divide-gray-100">

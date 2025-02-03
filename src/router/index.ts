@@ -18,6 +18,11 @@ const router = createRouter({
       component: () => import('../views/Charts.vue'),
     },
     {
+      path: '/expenses/monthly-category-data',
+      name: 'monthly-category-data',
+      component: () => import('../views/MonthlyCategoryData.vue'),
+    },
+    {
       path: '/expenses/yearly-category-data',
       name: 'yearly-category-data',
       component: () => import('../views/YearlyCategoryData.vue'),

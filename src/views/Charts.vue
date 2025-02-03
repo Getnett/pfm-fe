@@ -29,7 +29,11 @@ import { useRoute, useRouter } from 'vue-router'
 
 const transactionType = ref('expense')
 const period = ref<'monthly' | 'yearly'>('monthly')
-const date = ref<null | number | { month: number; year: number }>(null)
+const defaultDate = new Date()
+const date = ref<{ month: number; year: number } | number>({
+  month: defaultDate.getMonth(),
+  year: defaultDate.getFullYear(),
+})
 const route = useRoute()
 const router = useRouter()
 
@@ -332,8 +336,8 @@ const format = (date: Date) => {
   return period.value === 'monthly' ? `${months[month]}` : `${year}`
 }
 
-const openExpenseCategoryDetail = (catId: number, year: number) => {
-  router.push(`/expenses/yearly-category-data?catId=${catId}&year=${year}`)
+const openExpenseCategoryDetail = (catId: number, month: number, year: number) => {
+  router.push(`/expenses/monthly-category-data?catId=${catId}&month=${month}&year=${year}`)
 }
 
 watchEffect(async () => {
@@ -625,9 +629,20 @@ watchEffect(async () => {
       </ul>
     </div>
     <!-- monthly data -->
-    <div v-if="date !== null && monthlyExpense.length">
+    <div v-if="date.month !== null && monthlyExpense.length">
       <ul role="list" class="divide-y divide-gray-100">
-        <li v-for="record in monthlyExpense" :key="record.catId" class="cursor-pointer">
+        <li
+          v-for="record in monthlyExpense"
+          :key="record.catId"
+          @click="
+            openExpenseCategoryDetail(
+              Number(record.catId),
+              Number(date.month + 1),
+              Number(date.year),
+            )
+          "
+          class="cursor-pointer"
+        >
           <div class="flex justify-between">
             <div class="flex gap-4 mb-1 text-base font-medium text-gray-700 capitalize">
               <span>{{ record.categoryName }}</span>
