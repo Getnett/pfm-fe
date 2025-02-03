@@ -336,7 +336,10 @@ const format = (date: Date) => {
   return period.value === 'monthly' ? `${months[month]}` : `${year}`
 }
 
-const openExpenseCategoryDetail = (catId: number, month: number, year: number) => {
+const openExpenseYearlyCategoryDetail = (catId: number, year: number) => {
+  router.push(`/expenses/yearly-category-data?catId=${catId}&year=${year}`)
+}
+const openExpenseMonthlyCategoryDetail = (catId: number, month: number, year: number) => {
   router.push(`/expenses/monthly-category-data?catId=${catId}&month=${month}&year=${year}`)
 }
 
@@ -608,7 +611,7 @@ watchEffect(async () => {
           v-for="record in yearlyExpense"
           :key="record.catId"
           class="cursor-pointer"
-          @click="openExpenseCategoryDetail(Number(record.catId), Number(record.year))"
+          @click="openExpenseYearlyCategoryDetail(Number(record.catId), Number(record.year))"
         >
           <div class="flex justify-between">
             <div class="flex gap-4 mb-1 text-base font-medium text-gray-700 capitalize">
@@ -629,16 +632,16 @@ watchEffect(async () => {
       </ul>
     </div>
     <!-- monthly data -->
-    <div v-if="date.month !== null && monthlyExpense.length">
+    <div v-if="date?.month !== null && monthlyExpense.length">
       <ul role="list" class="divide-y divide-gray-100">
         <li
           v-for="record in monthlyExpense"
           :key="record.catId"
           @click="
-            openExpenseCategoryDetail(
+            openExpenseMonthlyCategoryDetail(
               Number(record.catId),
-              Number(date.month + 1),
-              Number(date.year),
+              Number(date?.month + 1),
+              Number(date?.year),
             )
           "
           class="cursor-pointer"
