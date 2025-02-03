@@ -27,10 +27,15 @@ import {
 } from '../api/chart'
 import { useRoute, useRouter } from 'vue-router'
 
+interface MonthlyDateType {
+  month: number
+  year: number
+}
+
 const transactionType = ref('expense')
 const period = ref<'monthly' | 'yearly'>('monthly')
 const defaultDate = new Date()
-const date = ref<{ month: number; year: number } | number>({
+const date = ref({
   month: defaultDate.getMonth(),
   year: defaultDate.getFullYear(),
 })
@@ -345,6 +350,10 @@ const openExpenseMonthlyCategoryDetail = (catId: number, month: number, year: nu
 
 watchEffect(async () => {
   if (transactionType.value === 'expense' && period.value === 'yearly') {
+    if (monthlyExpense.value.length) {
+      monthlyExpense.value = []
+    }
+
     const resData = await getExpensesYearlyAnalytics(date.value as number)
     expenseYearlyData.value.series[0]['data'] = resData.map((item: any) => ({
       name: item.categoryName,
@@ -397,6 +406,9 @@ watchEffect(async () => {
       (item: any) => item.month,
     )
   } else if (transactionType.value === 'expense' && period.value === 'monthly') {
+    if (yearlyExpense.value.length) {
+      yearlyExpense.value = []
+    }
     const month = Number(date.value?.month) + 1
     const year = Number(date.value?.year)
 
@@ -632,7 +644,8 @@ watchEffect(async () => {
       </ul>
     </div>
     <!-- monthly data -->
-    <div v-if="date?.month !== null && monthlyExpense.length">
+    <!-- @ts-ignore -->
+    <div v-if="date !== null && date.month && monthlyExpense.length">
       <ul role="list" class="divide-y divide-gray-100">
         <li
           v-for="record in monthlyExpense"
@@ -640,8 +653,8 @@ watchEffect(async () => {
           @click="
             openExpenseMonthlyCategoryDetail(
               Number(record.catId),
-              Number(date?.month + 1),
-              Number(date?.year),
+              Number(date.month + 1),
+              Number(date.year),
             )
           "
           class="cursor-pointer"
