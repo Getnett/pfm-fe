@@ -30,6 +30,11 @@ This application helps users track their income and expenses effectively.
 
 * https://github.com/Getnett/pfm-be
 
+
+## Live app
+ 
+* https://main.doyar4u9sxfwi.amplifyapp.com/
+
 ## Getting Started
 
 1. **Clone the repository:** 
