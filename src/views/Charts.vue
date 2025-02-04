@@ -35,7 +35,7 @@ interface MonthlyDateType {
 const transactionType = ref('expense')
 const period = ref<'monthly' | 'yearly'>('monthly')
 const defaultDate = new Date()
-const date = ref({
+const date = ref<any>({
   month: defaultDate.getMonth(),
   year: defaultDate.getFullYear(),
 })
@@ -644,7 +644,7 @@ watchEffect(async () => {
       </ul>
     </div>
     <!-- monthly data -->
-    <!-- @ts-ignore -->
+
     <div v-if="date !== null && date.month && monthlyExpense.length">
       <ul role="list" class="divide-y divide-gray-100">
         <li
