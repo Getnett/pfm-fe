@@ -1,64 +1,44 @@
-# pfm-fe
+# Personal Finance Management App
 
-This template should help get you started developing with Vue 3 in Vite.
+This application helps users track their income and expenses effectively.
 
-## Recommended IDE Setup
+## Key Features
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+* **Record Income/Expense:** Record income and expenses with details like amount, date, category (for expenses), and income source.
+* **Edit Transactions:** Edit existing records with updated amounts, notes, dates, and categories/income sources.
+* **View Total Balance:** Display the current total balance, total expenses, and total income.
+* **Transaction History:** List all transactions chronologically.
+* **Daily Totals:** Display daily totals for income and expenses.
+* **Monthly Expense Reports:** View monthly expenses categorized by type and their percentage contribution.
+* **Yearly Expense Reports:** View yearly expenses categorized by type and their percentage contribution.
+* **Monthly Income Reports:** View monthly income categorized by source and their percentage contribution.
+* **Yearly Income Reports:** View yearly income categorized by source and their percentage contribution.
+* **Expense Donut Charts (Monthly):** Visualize daily expense distribution within a month.
+* **Expense Donut Charts (Yearly):** Visualize monthly expense distribution within a year.
+* **Expense Line Chart:** Track total expenses over time for each category (monthly and yearly).
+* **Income Donut Charts (Monthly):** Visualize daily income distribution within a month.
+* **Income Donut Charts (Yearly):** Visualize monthly income distribution within a year.
+* **Income Line Chart:** Track total income over time for each source (monthly and yearly).
+* **CI/CD:** Implemented with GitHub Actions and  Amazon Amplify.
+* **Hosting:** Deployed on Amazon Amplify.
 
-## Type Support for `.vue` Imports in TS
+## Technologies Used
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+* Vue.js ,vue-echarts and TailwindCSS
 
-## Customize configuration
+## Backend repo for the project
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+* https://github.com/Getnett/pfm-be
 
-## Project Setup
+## Getting Started
 
-```sh
-npm install
-```
+1. **Clone the repository:** 
+   ```bash
+   git clone https://github.com/Getnett/pfm-fe
+2. **npm install:**
+   ```bash
+   npm install
 
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Type-Check, Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Run Unit Tests with [Vitest](https://vitest.dev/)
-
-```sh
-npm run test:unit
-```
-
-### Run End-to-End Tests with [Playwright](https://playwright.dev)
-
-```sh
-# Install browsers for the first run
-npx playwright install
-
-# When testing on CI, must build the project first
-npm run build
-
-# Runs the end-to-end tests
-npm run test:e2e
-# Runs the tests only on Chromium
-npm run test:e2e -- --project=chromium
-# Runs the tests of a specific file
-npm run test:e2e -- tests/example.spec.ts
-# Runs the tests in debug mode
-npm run test:e2e -- --debug
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
+3. **Start the project**
+   ```bash
+   npm run dev
