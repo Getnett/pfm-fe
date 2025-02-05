@@ -24,7 +24,9 @@ This application helps users track their income and expenses effectively.
 
 ## Technologies Used
 
-* Vue.js ,vue-echarts and TailwindCSS
+* Vue.js
+* Vue-echarts
+* TailwindCSS
 
 ## Backend repo for the project
 
