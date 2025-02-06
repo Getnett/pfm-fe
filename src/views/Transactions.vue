@@ -100,10 +100,14 @@ function handleOpenEditModal(id: number, type: string) {
 }
 
 async function handleCloseEditModal() {
-  const month = (date.value as IMonthYear).month + 1
-  const year = (date.value as IMonthYear).year
-  openEditModal.value = false
+  // const month = (date.value as IMonthYear).month + 1
+  // const year = (date.value as IMonthYear).year
+
+  const month = (date.value as Date).getMonth() + 1
+  const year = (date.value as Date).getFullYear()
+  console.log('DATE', date)
   await getTransactions(month, year)
+  openEditModal.value = false
 }
 
 async function handleOpenAddModal() {
@@ -112,6 +116,11 @@ async function handleOpenAddModal() {
 
 async function handleCloseAddModal() {
   openAddModal.value = false
+  const month = (date.value as Date).getMonth() + 1
+  const year = (date.value as Date).getFullYear()
+  await getTransactions(month, year)
+  await getTotalSpending(month, year)
+  await getTotalIncome(month, year)
 }
 
 onMounted(async () => {
