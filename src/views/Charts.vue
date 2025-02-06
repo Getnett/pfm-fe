@@ -24,8 +24,10 @@ import {
   getYearlyMonthlySpend,
   getExpensesMonthlyAnalytics,
   getMonthlyDailySpend,
+  getIncomesYearlyAnalytics,
+  getIncomesMonthlyAnalytics,
 } from '../api/chart'
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 
 interface MonthlyDateType {
   month: number
@@ -39,10 +41,10 @@ const date = ref<any>({
   month: defaultDate.getMonth(),
   year: defaultDate.getFullYear(),
 })
-const route = useRoute()
+
 const router = useRouter()
 
-// change the name here
+// expense related data  - could change the name here
 const yearlyExpense = ref<
   {
     total: string
@@ -58,6 +60,26 @@ const monthlyExpense = ref<
     total: string
     categoryName: string
     catId: number
+    percentage: string
+  }[]
+>([])
+
+// income related data
+
+const yearlyIncomeSourceListing = ref<
+  {
+    total: string
+    incomeSource: string
+    icsId: number
+    percentage: string
+  }[]
+>([])
+
+const monthlyIncomeSourceListing = ref<
+  {
+    total: string
+    incomeSource: string
+    icsId: number
     percentage: string
   }[]
 >([])
@@ -349,6 +371,25 @@ const openExpenseMonthlyCategoryDetail = (catId: number, month: number, year: nu
 }
 
 watchEffect(async () => {
+  if (transactionType.value === 'income' && period.value === 'yearly') {
+    monthlyExpense.value = []
+    yearlyExpense.value = []
+    monthlyIncomeSourceListing.value = []
+
+    // yearlyIncomeSourceListing
+    const resData = await getIncomesYearlyAnalytics(date.value as number)
+    yearlyIncomeSourceListing.value = resData
+  } else if (transactionType.value === 'income' && period.value === 'monthly') {
+    monthlyExpense.value = []
+    yearlyExpense.value = []
+    yearlyIncomeSourceListing.value = []
+
+    // monthlyIncomeSourceListing
+    const month = Number(date.value?.month) + 1
+    const year = Number(date.value?.year)
+    const resData = await getIncomesMonthlyAnalytics(month, year)
+    monthlyIncomeSourceListing.value = resData
+  }
   if (transactionType.value === 'expense' && period.value === 'yearly') {
     if (monthlyExpense.value.length) {
       monthlyExpense.value = []
@@ -662,6 +703,53 @@ watchEffect(async () => {
           <div class="flex justify-between">
             <div class="flex gap-4 mb-1 text-base font-medium text-gray-700 capitalize">
               <span>{{ record.categoryName }}</span>
+              <span>{{ record.percentage }}%</span>
+            </div>
+            <div>{{ record.total }}</div>
+          </div>
+
+          <div class="w-full bg-gray-200 rounded-full h-2.5 mb-4">
+            <div
+              class="bg-[#dad122] h-2.5 rounded-full"
+              style="width: 45%"
+              :style="{ width: record.percentage + '%' }"
+            ></div>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- income related info -->
+
+    <div v-if="date !== null && yearlyIncomeSourceListing.length">
+      <ul role="list" class="divide-y divide-gray-100">
+        <li v-for="record in yearlyIncomeSourceListing" :key="record.icsId" class="cursor-pointer">
+          <div class="flex justify-between">
+            <div class="flex gap-4 mb-1 text-base font-medium text-gray-700 capitalize">
+              <span>{{ record.incomeSource }}</span>
+              <span>{{ record.percentage }}%</span>
+            </div>
+            <div>{{ record.total }}</div>
+          </div>
+
+          <div class="w-full bg-gray-200 rounded-full h-2.5 mb-4">
+            <div
+              class="bg-[#dad122] h-2.5 rounded-full"
+              style="width: 45%"
+              :style="{ width: record.percentage + '%' }"
+            ></div>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- monthlyIncomeSourceListing -->
+    <div v-if="date !== null && date.month && monthlyIncomeSourceListing.length">
+      <ul role="list" class="divide-y divide-gray-100">
+        <li v-for="record in monthlyIncomeSourceListing" :key="record.icsId" class="cursor-pointer">
+          <div class="flex justify-between">
+            <div class="flex gap-4 mb-1 text-base font-medium text-gray-700 capitalize">
+              <span>{{ record.incomeSource }}</span>
               <span>{{ record.percentage }}%</span>
             </div>
             <div>{{ record.total }}</div>

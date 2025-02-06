@@ -1,3 +1,5 @@
+// expesnes
+
 export async function getExpensesYearlyAnalytics(year: number) {
   try {
     const res = await fetch(
@@ -66,6 +68,32 @@ export async function getMonthlyExpenseAnalyticsByCategory(
   try {
     const res = await fetch(
       `https://pfm.mypfmpupwrk.info/api/analytics/expenses/category_monthly_data?catId=${catId}&month=${month}&year=${year}`,
+    )
+    const resData = await res.json()
+    return resData
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
+// incomes
+
+export async function getIncomesYearlyAnalytics(year: number) {
+  try {
+    const res = await fetch(
+      `https://pfm.mypfmpupwrk.info/api/analytics/incomes/yearly_data?year=${year}`,
+    )
+    const resData = await res.json()
+    return resData
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
+export async function getIncomesMonthlyAnalytics(month: number, year: number) {
+  try {
+    const res = await fetch(
+      `https://pfm.mypfmpupwrk.info/api/analytics/incomes/monthly_data?month=${month}&year=${year}`,
     )
     const resData = await res.json()
     return resData
