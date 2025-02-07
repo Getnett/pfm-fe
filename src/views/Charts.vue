@@ -27,6 +27,7 @@ import {
   getIncomesYearlyAnalytics,
   getIncomesMonthlyAnalytics,
   getYearlyMontlyIncomeSources,
+  getMonthlyDailySourceIncomes,
 } from '../api/chart'
 import { useRouter } from 'vue-router'
 
@@ -490,6 +491,128 @@ const incomeYearlyDataByMonthLineChart = ref({
   ],
 })
 
+const monthlyIncomeData = ref({
+  title: {
+    text: 'Monthly data by income source',
+    left: 'center',
+  },
+  tooltip: {
+    trigger: 'item',
+    formatter: '{a} <br/>{b} : {c} ({d}%)',
+  },
+  legend: {
+    orient: 'vertical',
+    left: 'right',
+    align: 'left',
+    formatter: (name: string) => {
+      return `${name}`
+    },
+    // left: 'right',
+    data: [],
+  },
+  series: [
+    {
+      name: 'Income monthly data by income source',
+      type: 'pie',
+      radius: ['40%', '70%'],
+      // radius: '55%',
+      center: ['50%', '60%'],
+      data: [],
+      emphasis: {
+        itemStyle: {
+          shadowBlur: 10,
+          shadowOffsetX: 0,
+          shadowColor: 'rgba(0, 0, 0, 0.5)',
+        },
+      },
+    },
+  ],
+})
+
+const incomeMonthlyDailyData = ref({
+  title: {
+    text: 'Monthly data by day',
+    left: 'center',
+  },
+  tooltip: {
+    trigger: 'item',
+    // formatter: '{a} <br/>{b} : {c} ({d}%)',
+  },
+  legend: {
+    orient: 'vertical',
+    left: 'right',
+    align: 'left',
+    formatter: (name: string) => {
+      return `${name}`
+    },
+    data: [],
+  },
+  series: [
+    {
+      name: 'Income  monthly daily data',
+      type: 'pie',
+      radius: ['40%', '70%'],
+      center: ['50%', '60%'],
+      data: [],
+      emphasis: {
+        itemStyle: {
+          shadowBlur: 10,
+          shadowOffsetX: 0,
+          shadowColor: 'rgba(0, 0, 0, 0.5)',
+        },
+      },
+    },
+  ],
+  graphic: {
+    elements: [
+      {
+        type: 'text',
+        left: 'center',
+        top: 'middle',
+        style: {
+          text: 'Custom Text',
+          fontSize: 18,
+          fontWeight: 'bold',
+          fill: '#333', // Text color
+        },
+      },
+    ],
+  },
+})
+const incomeDailyMonthlyDataLineChart = ref({
+  title: {
+    text: 'Daily monthly data',
+    left: 'center',
+  },
+  tooltip: {
+    trigger: 'item',
+    // formatter: '{a} <br/>{b} : {c} ({d}%)',
+  },
+  legend: {
+    orient: 'vertical',
+    left: 'right',
+    align: 'left',
+    formatter: (name: string) => {
+      return `${name}`
+    },
+    data: [],
+  },
+  xAxis: {
+    type: 'category',
+    data: [],
+  },
+  lengend: {},
+  yAxis: {
+    type: 'value',
+  },
+  series: [
+    {
+      data: [],
+      type: 'line',
+    },
+  ],
+})
+
 const openExpenseYearlyCategoryDetail = (catId: number, year: number) => {
   router.push(`/expenses/yearly-category-data?catId=${catId}&year=${year}`)
 }
@@ -560,7 +683,52 @@ watchEffect(async () => {
     const year = Number(date.value?.year)
     const resData = await getIncomesMonthlyAnalytics(month, year)
     monthlyIncomeSourceListing.value = resData
+
+    // monthlyIncomeData
+
+    const fperc = (name: string) => {
+      // Find the corresponding data item
+      const item = resData.find((item: any) => item.incomeSource === name)
+
+      return `${item.incomeSource}           ${item.percentage}%`
+    }
+
+    monthlyIncomeData.value.legend.formatter = fperc
+
+    monthlyIncomeData.value.legend.data = resData.map((item: any) => item.incomeSource)
+
+    monthlyIncomeData.value.series[0]['data'] = resData.map((item: any) => ({
+      name: item.incomeSource,
+      value: item.total,
+    }))
+
+    // getMonthlyDailySourceIncomes
+
+    const resDataDaily = await getMonthlyDailySourceIncomes(month, year)
+
+    const fvalue = (name: string) => {
+      // Find the corresponding data item
+      const item = resDataDaily.find((item: any) => item.date === name)
+
+      return `${item.date}           ${item.amount}`
+    }
+    incomeMonthlyDailyData.value.series[0]['data'] = resDataDaily.map((item: any) => ({
+      name: item.date,
+      value: item.amount,
+    }))
+    incomeMonthlyDailyData.value.legend.formatter = fvalue
+    incomeMonthlyDailyData.value.legend.data = resDataDaily.map((item: any) => item.date)
+
+    // incomeDailyMonthlyDataLineChart
+    incomeDailyMonthlyDataLineChart.value.series[0]['data'] = resDataDaily.map((item: any) => ({
+      name: item.date,
+      value: item.amount,
+    }))
+    incomeDailyMonthlyDataLineChart.value.legend.formatter = fvalue
+    incomeDailyMonthlyDataLineChart.value.xAxis.data = resDataDaily.map((item: any) => item.date)
+    incomeDailyMonthlyDataLineChart.value.legend.data = resDataDaily.map((item: any) => item.date)
   }
+
   if (transactionType.value === 'expense' && period.value === 'yearly') {
     if (monthlyExpense.value.length) {
       monthlyExpense.value = []
@@ -864,6 +1032,41 @@ watchEffect(async () => {
             </div>
           </SplideSlide>
         </Splide>
+
+        <Splide
+          v-if="date !== null && monthlyIncomeSourceListing.length"
+          :options="{ rewind: true, heightRation: 0.7, fixedHeight: '15rem' }"
+          aria-label="Yearly Analytics"
+        >
+          <SplideSlide>
+            <div class="h-80" v-if="date !== null">
+              <VChart
+                class="h-52 bg-gray-100 rounded-md shadow-md"
+                :option="monthlyIncomeData"
+                autoresize
+              />
+            </div>
+          </SplideSlide>
+          <!-- incomeDailyMonthlyDataLineChart -->
+          <SplideSlide>
+            <div class="h-80" v-if="date !== null">
+              <VChart
+                class="h-52 bg-gray-100 rounded-md shadow-md"
+                :option="incomeMonthlyDailyData"
+                autoresize
+              />
+            </div>
+          </SplideSlide>
+          <SplideSlide>
+            <div class="h-80" v-if="date !== null">
+              <VChart
+                class="h-52 bg-gray-100 rounded-md shadow-md"
+                :option="incomeDailyMonthlyDataLineChart"
+                autoresize
+              />
+            </div>
+          </SplideSlide>
+        </Splide>
       </div>
     </div>
 
@@ -953,7 +1156,7 @@ watchEffect(async () => {
     </div>
 
     <!-- monthlyIncomeSourceListing -->
-    <div v-if="date !== null && date.month && monthlyIncomeSourceListing.length">
+    <div v-if="date !== null && monthlyIncomeSourceListing.length">
       <ul role="list" class="divide-y divide-gray-100">
         <li v-for="record in monthlyIncomeSourceListing" :key="record.icsId" class="cursor-pointer">
           <div class="flex justify-between">
