@@ -101,3 +101,15 @@ export async function getIncomesMonthlyAnalytics(month: number, year: number) {
     throw new Error(error)
   }
 }
+
+export async function getYearlyMontlyIncomeSources(year: number) {
+  try {
+    const res = await fetch(
+      `https://pfm.mypfmpupwrk.info/api/analytics/incomes/yearly_monthly_sources?year=${year}`,
+    )
+    const resData = await res.json()
+    return resData
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}

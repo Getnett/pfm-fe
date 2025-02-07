@@ -26,6 +26,7 @@ import {
   getMonthlyDailySpend,
   getIncomesYearlyAnalytics,
   getIncomesMonthlyAnalytics,
+  getYearlyMontlyIncomeSources,
 } from '../api/chart'
 import { useRouter } from 'vue-router'
 
@@ -96,6 +97,7 @@ use([
 
 provide(THEME_KEY, 'light')
 
+// expenses chart
 const expenseYearlyData = ref({
   title: {
     text: 'Yearly data by category',
@@ -363,6 +365,131 @@ const format = (date: Date) => {
   return period.value === 'monthly' ? `${months[month]}` : `${year}`
 }
 
+// income chart
+
+const yearlyIncomeData = ref({
+  title: {
+    text: 'Yearly data by income source',
+    left: 'center',
+  },
+  tooltip: {
+    trigger: 'item',
+    formatter: '{a} <br/>{b} : {c} ({d}%)',
+  },
+  legend: {
+    orient: 'vertical',
+    left: 'right',
+    align: 'left',
+    formatter: (name: string) => {
+      return `${name}`
+    },
+    // left: 'right',
+    data: [],
+  },
+  series: [
+    {
+      name: 'Income yearly data by income source',
+      type: 'pie',
+      radius: ['40%', '70%'],
+      // radius: '55%',
+      center: ['50%', '60%'],
+      data: [],
+      emphasis: {
+        itemStyle: {
+          shadowBlur: 10,
+          shadowOffsetX: 0,
+          shadowColor: 'rgba(0, 0, 0, 0.5)',
+        },
+      },
+    },
+  ],
+})
+
+const incomeYearlyDataByMonth = ref({
+  title: {
+    text: 'Yearly data by each month',
+    left: 'center',
+  },
+  tooltip: {
+    trigger: 'item',
+    // formatter: '{a} <br/>{b} : {c} ({d}%)',
+  },
+  legend: {
+    orient: 'vertical',
+    left: 'right',
+    align: 'left',
+    formatter: (name: string) => {
+      return `${name}`
+    },
+    data: [],
+  },
+  series: [
+    {
+      name: 'Income yearly monthly data',
+      type: 'pie',
+      radius: ['40%', '70%'],
+      center: ['50%', '60%'],
+      data: [],
+      emphasis: {
+        itemStyle: {
+          shadowBlur: 10,
+          shadowOffsetX: 0,
+          shadowColor: 'rgba(0, 0, 0, 0.5)',
+        },
+      },
+    },
+  ],
+  graphic: {
+    elements: [
+      {
+        type: 'text',
+        left: 'center',
+        top: 'middle',
+        style: {
+          text: 'Custom Text',
+          fontSize: 18,
+          fontWeight: 'bold',
+          fill: '#333', // Text color
+        },
+      },
+    ],
+  },
+})
+
+const incomeYearlyDataByMonthLineChart = ref({
+  title: {
+    text: 'Yearly data by each month',
+    left: 'center',
+  },
+  tooltip: {
+    trigger: 'item',
+    // formatter: '{a} <br/>{b} : {c} ({d}%)',
+  },
+  legend: {
+    orient: 'vertical',
+    left: 'right',
+    align: 'left',
+    formatter: (name: string) => {
+      return `${name}`
+    },
+    data: [],
+  },
+  xAxis: {
+    type: 'category',
+    data: [],
+  },
+  lengend: {},
+  yAxis: {
+    type: 'value',
+  },
+  series: [
+    {
+      data: [],
+      type: 'line',
+    },
+  ],
+})
+
 const openExpenseYearlyCategoryDetail = (catId: number, year: number) => {
   router.push(`/expenses/yearly-category-data?catId=${catId}&year=${year}`)
 }
@@ -379,6 +506,50 @@ watchEffect(async () => {
     // yearlyIncomeSourceListing
     const resData = await getIncomesYearlyAnalytics(date.value as number)
     yearlyIncomeSourceListing.value = resData
+
+    // chart assignment statment
+    yearlyIncomeData.value.series[0]['data'] = resData.map((item: any) => ({
+      name: item.incomeSource,
+      value: item.total,
+    }))
+
+    const fperc = (name: string) => {
+      // Find the corresponding data item
+      const item = resData.find((item: any) => item.incomeSource === name)
+      return `${item.incomeSource}           ${item.percentage}%`
+    }
+
+    yearlyIncomeData.value.legend.formatter = fperc
+    yearlyIncomeData.value.legend.data = resData.map((item: any) => item.incomeSource)
+
+    // <-- chart by grouped by income source -->
+
+    const resDataByMon = await getYearlyMontlyIncomeSources(date.value as number)
+
+    incomeYearlyDataByMonth.value.series[0]['data'] = resDataByMon.map((item: any) => ({
+      name: item.month,
+      value: item.total,
+    }))
+
+    const fvalue = (name: string) => {
+      // Find the corresponding data item
+      const item = resDataByMon.find((item: any) => item.month === name)
+
+      return `${item.month}           ${item.total}`
+    }
+
+    incomeYearlyDataByMonth.value.legend.formatter = fvalue
+
+    incomeYearlyDataByMonth.value.legend.data = resDataByMon.map((item: any) => item.month)
+
+    // line chart
+    incomeYearlyDataByMonthLineChart.value.series[0]['data'] = resDataByMon.map((item: any) => ({
+      name: item.month,
+      value: item.total,
+    }))
+    incomeYearlyDataByMonthLineChart.value.legend.formatter = fvalue
+    incomeYearlyDataByMonthLineChart.value.xAxis.data = resDataByMon.map((item: any) => item.month)
+    incomeYearlyDataByMonthLineChart.value.legend.data = resDataByMon.map((item: any) => item.month)
   } else if (transactionType.value === 'income' && period.value === 'monthly') {
     monthlyExpense.value = []
     yearlyExpense.value = []
@@ -583,79 +754,117 @@ watchEffect(async () => {
       </div>
     </div>
     <div class="max-w-5xl max-h-full flex flex-col gap-8 mt-8 justify-center m-auto">
-      <Splide
-        v-if="date !== null && yearlyExpense.length"
-        :options="{ rewind: true, heightRation: 0.7, fixedHeight: '15rem' }"
-        aria-label="Yearly Analytics"
-      >
-        <SplideSlide>
-          <!-- <div class="w-sm h-80 bg-green-500 flex items-center justify-center">Image1</div> -->
-          <div class="h-80" v-if="date !== null">
-            <VChart
-              class="h-52 bg-gray-100 rounded-md shadow-md"
-              :option="expenseYearlyData"
-              autoresize
-            />
-          </div>
-        </SplideSlide>
-        <SplideSlide>
-          <!-- <div class="w-sm h-80 bg-yellow-300 flex items-center justify-center">Image 2</div> -->
-          <div class="h-80" v-if="date !== null">
-            <VChart
-              class="h-52 bg-gray-100 rounded-md shadow-md"
-              :option="expenseYearlyDataByMonth"
-              autoresize
-            />
-          </div>
-        </SplideSlide>
-        <SplideSlide>
-          <!-- <div class="w-sm h-80 bg-yellow-300 flex items-center justify-center">Image 2</div> -->
+      <div v-if="transactionType === 'expense'">
+        <Splide
+          v-if="date !== null && yearlyExpense.length"
+          :options="{ rewind: true, heightRation: 0.7, fixedHeight: '15rem' }"
+          aria-label="Yearly Analytics"
+        >
+          <SplideSlide>
+            <!-- <div class="w-sm h-80 bg-green-500 flex items-center justify-center">Image1</div> -->
+            <div class="h-80" v-if="date !== null">
+              <VChart
+                class="h-52 bg-gray-100 rounded-md shadow-md"
+                :option="expenseYearlyData"
+                autoresize
+              />
+            </div>
+          </SplideSlide>
+          <SplideSlide>
+            <!-- <div class="w-sm h-80 bg-yellow-300 flex items-center justify-center">Image 2</div> -->
+            <div class="h-80" v-if="date !== null">
+              <VChart
+                class="h-52 bg-gray-100 rounded-md shadow-md"
+                :option="expenseYearlyDataByMonth"
+                autoresize
+              />
+            </div>
+          </SplideSlide>
+          <SplideSlide>
+            <!-- <div class="w-sm h-80 bg-yellow-300 flex items-center justify-center">Image 2</div> -->
 
-          <div class="h-80" v-if="date !== null">
-            <VChart
-              class="h-52 bg-gray-100 rounded-md shadow-md"
-              :option="expenseYearlyDataByMonthLineChart"
-              autoresize
-            />
-          </div>
-        </SplideSlide>
-      </Splide>
-      <Splide
-        v-if="date !== null && monthlyExpense.length"
-        :options="{ rewind: true, heightRation: 0.7, fixedHeight: '15rem' }"
-        aria-label="Yearly Analytics"
-      >
-        <SplideSlide>
-          <!-- <div class="w-sm h-80 bg-green-500 flex items-center justify-center">Image1</div> -->
-          <div class="h-80" v-if="date !== null">
-            <VChart
-              class="h-52 bg-gray-100 rounded-md shadow-md"
-              :option="expenseMonthlyData"
-              autoresize
-            />
-          </div>
-        </SplideSlide>
-        <SplideSlide>
-          <!-- <div class="w-sm h-80 bg-yellow-300 flex items-center justify-center">Image 2</div> -->
-          <div class="h-80" v-if="date !== null">
-            <VChart
-              class="h-52 bg-gray-100 rounded-md shadow-md"
-              :option="expenseMonthlyDailyData"
-              autoresize
-            />
-          </div>
-        </SplideSlide>
-        <SplideSlide>
-          <!-- <div class="w-sm h-80 bg-yellow-300 flex items-center justify-center">Image 2</div> -->
-          <div class="h-80" v-if="date !== null">
-            <VChart
-              class="h-52 bg-gray-100 rounded-md shadow-md"
-              :option="expenseDailyMonthlyDataLineChart"
-              autoresize
-            />
-          </div>
-        </SplideSlide>
-      </Splide>
+            <div class="h-80" v-if="date !== null">
+              <VChart
+                class="h-52 bg-gray-100 rounded-md shadow-md"
+                :option="expenseYearlyDataByMonthLineChart"
+                autoresize
+              />
+            </div>
+          </SplideSlide>
+        </Splide>
+        <Splide
+          v-if="date !== null && monthlyExpense.length"
+          :options="{ rewind: true, heightRation: 0.7, fixedHeight: '15rem' }"
+          aria-label="Yearly Analytics"
+        >
+          <SplideSlide>
+            <!-- <div class="w-sm h-80 bg-green-500 flex items-center justify-center">Image1</div> -->
+            <div class="h-80" v-if="date !== null">
+              <VChart
+                class="h-52 bg-gray-100 rounded-md shadow-md"
+                :option="expenseMonthlyData"
+                autoresize
+              />
+            </div>
+          </SplideSlide>
+          <SplideSlide>
+            <!-- <div class="w-sm h-80 bg-yellow-300 flex items-center justify-center">Image 2</div> -->
+            <div class="h-80" v-if="date !== null">
+              <VChart
+                class="h-52 bg-gray-100 rounded-md shadow-md"
+                :option="expenseMonthlyDailyData"
+                autoresize
+              />
+            </div>
+          </SplideSlide>
+          <SplideSlide>
+            <!-- <div class="w-sm h-80 bg-yellow-300 flex items-center justify-center">Image 2</div> -->
+            <div class="h-80" v-if="date !== null">
+              <VChart
+                class="h-52 bg-gray-100 rounded-md shadow-md"
+                :option="expenseDailyMonthlyDataLineChart"
+                autoresize
+              />
+            </div>
+          </SplideSlide>
+        </Splide>
+      </div>
+      <div v-if="transactionType === 'income'">
+        <Splide
+          v-if="date !== null && yearlyIncomeSourceListing.length"
+          :options="{ rewind: true, heightRation: 0.7, fixedHeight: '15rem' }"
+          aria-label="Yearly Analytics"
+        >
+          <SplideSlide>
+            <div class="h-80" v-if="date !== null">
+              <VChart
+                class="h-52 bg-gray-100 rounded-md shadow-md"
+                :option="yearlyIncomeData"
+                autoresize
+              />
+            </div>
+          </SplideSlide>
+          <SplideSlide>
+            <!-- <div class="w-sm h-80 bg-yellow-300 flex items-center justify-center">Image 2</div> -->
+            <div class="h-80" v-if="date !== null">
+              <VChart
+                class="h-52 bg-gray-100 rounded-md shadow-md"
+                :option="incomeYearlyDataByMonth"
+                autoresize
+              />
+            </div>
+          </SplideSlide>
+          <SplideSlide>
+            <div class="h-80" v-if="date !== null">
+              <VChart
+                class="h-52 bg-gray-100 rounded-md shadow-md"
+                :option="incomeYearlyDataByMonthLineChart"
+                autoresize
+              />
+            </div>
+          </SplideSlide>
+        </Splide>
+      </div>
     </div>
 
     <div v-if="date !== null && yearlyExpense.length">
