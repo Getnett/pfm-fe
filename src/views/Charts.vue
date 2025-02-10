@@ -625,6 +625,10 @@ const openExpenseMonthlyCategoryDetail = (catId: number, month: number, year: nu
 const openIncomeSourceYearlyDetail = (icsId: number, year: number) => {
   router.push(`/incomes/yearly-income-source-data?icsId=${icsId}&year=${year}`)
 }
+
+const openIncomeMonthlyIncomeSourceDetail = (icsId: number, month: number, year: number) => {
+  router.push(`/incomes/monthly-income-source-data?icsId=${icsId}&month=${month}&year=${year}`)
+}
 watchEffect(async () => {
   if (transactionType.value === 'income' && period.value === 'yearly') {
     monthlyExpense.value = []
@@ -1176,7 +1180,18 @@ watchEffect(async () => {
     <!-- monthlyIncomeSourceListing -->
     <div v-if="date !== null && monthlyIncomeSourceListing.length">
       <ul role="list" class="divide-y divide-gray-100">
-        <li v-for="record in monthlyIncomeSourceListing" :key="record.icsId" class="cursor-pointer">
+        <li
+          v-for="record in monthlyIncomeSourceListing"
+          :key="record.icsId"
+          @click="
+            openIncomeMonthlyIncomeSourceDetail(
+              Number(record.icsId),
+              Number(date.month + 1),
+              Number(date.year),
+            )
+          "
+          class="cursor-pointer"
+        >
           <div class="flex justify-between">
             <div class="flex gap-4 mb-1 text-base font-medium text-gray-700 capitalize">
               <span>{{ record.incomeSource }}</span>

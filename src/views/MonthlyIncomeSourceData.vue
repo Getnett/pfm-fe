@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, onMounted } from 'vue'
 import EditTransaction from '../components/EditTransaction.vue'
-import { getYearlyIncomeAnalyticsByIncomeSource } from '../api/chart'
-import { ref } from 'vue'
+import { getMonthlyIncomeAnalyticsByIncomeSource } from '../api/chart'
+import { useRoute } from 'vue-router'
 
 const route = useRoute()
+const openEditModal = ref(false)
+const transactionId = ref<number | null>(null)
 const incomeData = ref<
   {
     incomeId: number
@@ -16,31 +17,25 @@ const incomeData = ref<
     percentage: string
   }[]
 >([])
-const openEditModal = ref(false)
-const transactionId = ref<number | null>(null)
 
-onMounted(async () => {
-  // new api by income source
-  try {
-    const resData = await getYearlyIncomeAnalyticsByIncomeSource(
-      Number(route.query.icsId),
-      Number(route.query.year),
-    )
-    incomeData.value = resData
-  } catch (error: any) {
-    throw new Error(error)
-  }
-})
-
-const handleOpenEditTransaction = (incomeId: number) => {
+function handleOpenEditTransaction(incomeId: number) {
   openEditModal.value = true
   transactionId.value = incomeId
 }
 
-const handleCloseEditModal = () => {
+function handleCloseEditModal() {
   openEditModal.value = false
 }
+
+onMounted(async () => {
+  incomeData.value = await getMonthlyIncomeAnalyticsByIncomeSource(
+    Number(route.query.icsId),
+    Number(route.query.month),
+    Number(route.query.year),
+  )
+})
 </script>
+
 <template>
   <div>
     <ul role="list" class="divide-y divide-gray-100">

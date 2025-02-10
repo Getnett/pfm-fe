@@ -28,6 +28,11 @@ const router = createRouter({
       component: () => import('../views/YearlyExpenseCategoryData.vue'),
     },
     {
+      path: '/incomes/monthly-income-source-data',
+      name: 'monthly-income-source-data',
+      component: () => import('../views/MonthlyIncomeSourceData.vue'),
+    },
+    {
       path: '/incomes/yearly-income-source-data',
       name: 'yearly-income-source-data',
       component: () => import('../views/YearlyIncomeSourceData.vue'),
