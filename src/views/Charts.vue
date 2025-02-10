@@ -74,6 +74,7 @@ const yearlyIncomeSourceListing = ref<
     incomeSource: string
     icsId: number
     percentage: string
+    year: string
   }[]
 >([])
 
@@ -616,10 +617,14 @@ const incomeDailyMonthlyDataLineChart = ref({
 const openExpenseYearlyCategoryDetail = (catId: number, year: number) => {
   router.push(`/expenses/yearly-category-data?catId=${catId}&year=${year}`)
 }
+
 const openExpenseMonthlyCategoryDetail = (catId: number, month: number, year: number) => {
   router.push(`/expenses/monthly-category-data?catId=${catId}&month=${month}&year=${year}`)
 }
 
+const openIncomeSourceYearlyDetail = (icsId: number, year: number) => {
+  router.push(`/incomes/yearly-income-source-data?icsId=${icsId}&year=${year}`)
+}
 watchEffect(async () => {
   if (transactionType.value === 'income' && period.value === 'yearly') {
     monthlyExpense.value = []
@@ -730,9 +735,9 @@ watchEffect(async () => {
   }
 
   if (transactionType.value === 'expense' && period.value === 'yearly') {
-    if (monthlyExpense.value.length) {
-      monthlyExpense.value = []
-    }
+    monthlyExpense.value = []
+    monthlyIncomeSourceListing.value = []
+    yearlyIncomeSourceListing.value = []
 
     const resData = await getExpensesYearlyAnalytics(date.value as number)
     expenseYearlyData.value.series[0]['data'] = resData.map((item: any) => ({
@@ -786,9 +791,10 @@ watchEffect(async () => {
       (item: any) => item.month,
     )
   } else if (transactionType.value === 'expense' && period.value === 'monthly') {
-    if (yearlyExpense.value.length) {
-      yearlyExpense.value = []
-    }
+    yearlyExpense.value = []
+    monthlyIncomeSourceListing.value = []
+    yearlyIncomeSourceListing.value = []
+
     const month = Number(date.value?.month) + 1
     const year = Number(date.value?.year)
 
@@ -827,7 +833,14 @@ watchEffect(async () => {
 
     expenseMonthlyDailyData.value.legend.formatter = fvalue
     //  expenseYearlyDataByMonth.value.legend.data = resDataByMon.map((item: any) => item.month)
-    expenseMonthlyDailyData.value.legend.data = resDataDaily.map((item: any) => item.date)
+    expenseMonthlyDailyData.value.legend.data = Array.from(
+      new Set(resDataDaily.map((item: any) => item.date)),
+    )
+
+    console.log(
+      ' expenseMonthlyDailyData.value.legend.data',
+      expenseMonthlyDailyData.value.legend.data,
+    )
 
     // expenseDailyMonthlyDataLineChart
     expenseDailyMonthlyDataLineChart.value.series[0]['data'] = resDataDaily.map((item: any) => ({
@@ -1135,7 +1148,12 @@ watchEffect(async () => {
 
     <div v-if="date !== null && yearlyIncomeSourceListing.length">
       <ul role="list" class="divide-y divide-gray-100">
-        <li v-for="record in yearlyIncomeSourceListing" :key="record.icsId" class="cursor-pointer">
+        <li
+          v-for="record in yearlyIncomeSourceListing"
+          :key="record.icsId"
+          @click="openIncomeSourceYearlyDetail(record.icsId, Number(record.year))"
+          class="cursor-pointer"
+        >
           <div class="flex justify-between">
             <div class="flex gap-4 mb-1 text-base font-medium text-gray-700 capitalize">
               <span>{{ record.incomeSource }}</span>

@@ -20,12 +20,17 @@ const router = createRouter({
     {
       path: '/expenses/monthly-category-data',
       name: 'monthly-category-data',
-      component: () => import('../views/MonthlyCategoryData.vue'),
+      component: () => import('../views/MonthlyExpenseCategoryData.vue'),
     },
     {
       path: '/expenses/yearly-category-data',
       name: 'yearly-category-data',
-      component: () => import('../views/YearlyCategoryData.vue'),
+      component: () => import('../views/YearlyExpenseCategoryData.vue'),
+    },
+    {
+      path: '/incomes/yearly-income-source-data',
+      name: 'yearly-income-source-data',
+      component: () => import('../views/YearlyIncomeSourceData.vue'),
     },
     {
       path: '/analytics',
