@@ -3,7 +3,7 @@ import DOMPurify from 'dompurify'
 
 export async function sendMessageToAIService(message: string) {
   try {
-    const res = await fetch(`http://localhost:3000/api/assistant`, {
+    const res = await fetch(`https://pfm.mypfmpupwrk.info/api/assistant`, {
       headers: {
         'Content-Type': 'application/json',
       },
