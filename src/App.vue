@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import ChatBotVue from './components/ChatBot.vue'
+
 // make all immdeiate child elements go black [&_*]:text-black
 </script>
 
@@ -16,6 +18,7 @@
       <div>
         <RouterView />
       </div>
+      <ChatBotVue />
     </main>
   </div>
 </template>
