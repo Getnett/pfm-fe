@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch, nextTick } from 'vue'
 import { sendMessageToAIService } from '../api/chat'
 
 const showChatBot = ref(false)
 const loading = ref(false)
-// const aiMessage = ref(false)
 const userMessage = ref('')
 const allMessages = ref<{ type: string; message: string }[]>([])
+const chatContainerRef = ref<HTMLElement | null>(null)
 
 function handleToggleChatBox() {
   showChatBot.value = !showChatBot.value
@@ -14,7 +14,9 @@ function handleToggleChatBox() {
 
 async function sendUserMessage() {
   const currentUserMessage = { type: 'user', message: userMessage.value.toString() }
+
   userMessage.value = ''
+
   allMessages.value.push(currentUserMessage)
 
   loading.value = true
@@ -26,7 +28,23 @@ async function sendUserMessage() {
   loading.value = false
 
   allMessages.value.push(currentAIMessage)
+
+  await nextTick(() => {
+    const el = chatContainerRef.value
+    if (el) {
+      el.scrollTop = el.scrollHeight
+    }
+  })
 }
+
+watch([allMessages, userMessage], () => {
+  nextTick(() => {
+    const el = chatContainerRef.value
+    if (el) {
+      el.scrollTop = el.scrollHeight
+    }
+  })
+})
 </script>
 <template>
   <div class="fixed right-4 bottom-4 z-40">
@@ -66,12 +84,13 @@ async function sendUserMessage() {
     >
       <!-- Heading -->
       <div class="flex flex-col space-y-1.5 pb-6">
-        <h2 class="font-semibold text-lg tracking-tight">Chatbot</h2>
-        <p class="text-sm text-[#6b7280] leading-3">Powered by Mendable and Vercel</p>
+        <h2 class="font-semibold text-lg tracking-tight">AI assistant</h2>
+        <p class="text-sm text-[#6b7280] leading-3">Ask the AI for your finances</p>
       </div>
 
       <!-- Chat Container -->
       <div
+        ref="chatContainerRef"
         class="flex flex-col pr-4 h-[474px] overflow-y-auto scroll-smooth"
         style="min-width: 100%"
       >

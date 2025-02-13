@@ -1113,6 +1113,17 @@ watchEffect(async () => {
         </li>
       </ul>
     </div>
+    <div
+      class="flex justify-center items-center mt-12"
+      v-if="
+        date !== null &&
+        period === 'yearly' &&
+        transactionType === 'expense' &&
+        !yearlyExpense.length
+      "
+    >
+      <h3 class="text-4xl">No transaction record</h3>
+    </div>
     <!-- monthly data -->
 
     <div v-if="date !== null && date.month && monthlyExpense.length">
@@ -1148,6 +1159,18 @@ watchEffect(async () => {
       </ul>
     </div>
 
+    <div
+      class="flex justify-center items-center mt-12"
+      v-if="
+        date !== null &&
+        period === 'monthly' &&
+        transactionType === 'expense' &&
+        !monthlyExpense.length
+      "
+    >
+      <h3 class="text-4xl">No transaction record</h3>
+    </div>
+
     <!-- income related info -->
 
     <div v-if="date !== null && yearlyIncomeSourceListing.length">
@@ -1175,6 +1198,17 @@ watchEffect(async () => {
           </div>
         </li>
       </ul>
+    </div>
+    <div
+      class="flex justify-center items-center mt-12"
+      v-if="
+        date !== null &&
+        period === 'yearly' &&
+        transactionType === 'income' &&
+        !yearlyIncomeSourceListing.length
+      "
+    >
+      <h3 class="text-4xl">No transaction record</h3>
     </div>
 
     <!-- monthlyIncomeSourceListing -->
@@ -1209,6 +1243,17 @@ watchEffect(async () => {
           </div>
         </li>
       </ul>
+    </div>
+    <div
+      class="flex justify-center items-center mt-12"
+      v-if="
+        date !== null &&
+        period === 'monthly' &&
+        transactionType === 'income' &&
+        !monthlyIncomeSourceListing.length
+      "
+    >
+      <h3 class="text-4xl">No transaction record</h3>
     </div>
   </div>
 </template>
