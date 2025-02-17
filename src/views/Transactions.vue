@@ -2,6 +2,10 @@
 import { ref, onMounted, watch } from 'vue'
 import VueDatePicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
+import type { TransactionType } from '../types/types'
+import TransactionsList from '@/components/TransactionsList.vue'
+import EditTransaction from '@/components/EditTransaction.vue'
+import AddTransaction from '../components/AddTransaction.vue'
 import {
   fetchTranscationRecords,
   deleteExpenseTransaction,
@@ -9,10 +13,6 @@ import {
   getTotalSpendingInMonth,
   getTotalIncomeInMonth,
 } from '../api/transactions'
-import type { TransactionType } from '../types/types'
-import TransactionsList from '@/components/TransactionsList.vue'
-import EditTransaction from '@/components/EditTransaction.vue'
-import AddTransaction from '../components/AddTransaction.vue'
 
 interface IMonthYear {
   month: number
@@ -118,9 +118,11 @@ async function handleCloseAddModal() {
   openAddModal.value = false
   const month = (date.value as Date).getMonth() + 1
   const year = (date.value as Date).getFullYear()
-  await getTransactions(month, year)
-  await getTotalSpending(month, year)
-  await getTotalIncome(month, year)
+  if (month && year) {
+    await getTransactions(month, year)
+    await getTotalSpending(month, year)
+    await getTotalIncome(month, year)
+  }
 }
 
 onMounted(async () => {

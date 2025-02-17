@@ -165,3 +165,37 @@ export async function getTotalIncomeInMonth(month: number, year: number) {
     throw new Error(error)
   }
 }
+
+//  probably separate file
+export async function addCategory(payload: any) {
+  try {
+    // /api/categories
+    const res = await fetch(`https://pfm.mypfmpupwrk.info/api/categories`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
+    const resData = await res.json()
+    return resData
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
+export async function addIncomeSource(payload: any) {
+  try {
+    const res = await fetch(`https://pfm.mypfmpupwrk.info/api/income-sources`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
+    const resData = await res.json()
+    return resData
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}

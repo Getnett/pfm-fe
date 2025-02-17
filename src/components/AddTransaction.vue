@@ -1,73 +1,3 @@
-<script setup lang="ts">
-import { ref, watch } from 'vue'
-import VueDatePicker from '@vuepic/vue-datepicker'
-import {
-  getAllCategories,
-  getAllIncomeSources,
-  addExpenseTransaction,
-  addIncomeTransaction,
-} from '../api/transactions'
-
-interface AddTransactionProps {
-  open: boolean
-}
-interface Categories {
-  id: number
-  categoryName: string
-}
-
-interface IncomeSources {
-  id: number
-  incomeSource: string
-}
-
-const transactionType = ref('')
-// @ts-ignore
-defineProps<AddTransactionProps>()
-// @ts-ignore
-const emits = defineEmits<{
-  (e: 'closeAddModal'): void
-}>()
-
-const amount = ref<number | string>('')
-const note = ref<string>('')
-const date = ref<Date>(new Date())
-const category = ref<string>('')
-const incomeSource = ref<string>('')
-
-// list
-const categories = ref<Categories[]>([])
-const incomeSources = ref<IncomeSources[]>([])
-
-async function handleAddTransaction() {
-  if (transactionType.value === 'expense') {
-    await addExpenseTransaction({
-      amount: amount.value,
-      note: note.value,
-      date: date.value.toISOString(),
-      categoryId: category.value,
-    })
-
-    emits('closeAddModal')
-  } else if (transactionType.value === 'income') {
-    await addIncomeTransaction({
-      amount: amount.value,
-      note: note.value,
-      date: date.value.toISOString(),
-      incomeSourcesId: incomeSource.value,
-    })
-    emits('closeAddModal')
-  }
-}
-
-watch(transactionType, async (newValue, oldValue) => {
-  if (newValue === 'expense') {
-    categories.value = await getAllCategories()
-  } else if (newValue === 'income') {
-    incomeSources.value = await getAllIncomeSources()
-  }
-})
-</script>
 <template>
   <Teleport v-if="open" to="body">
     <div class="relative z-10" aria-labelledby="modal-title" role="dialog" aria-modal="true">
@@ -150,34 +80,16 @@ watch(transactionType, async (newValue, oldValue) => {
                             >Categories</label
                           >
                           <div class="mt-2 grid grid-cols-1">
-                            <select
-                              id="categories"
-                              name="categories"
-                              v-model="category"
-                              autocomplete="income-sources"
-                              class="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pl-3 pr-8 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                            >
-                              <option
-                                v-for="category in categories"
-                                :key="category.id"
-                                :value="category.id"
-                              >
-                                {{ category.categoryName }}
-                              </option>
-                            </select>
-                            <svg
-                              class="pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end text-gray-500 sm:size-4"
-                              viewBox="0 0 16 16"
-                              fill="currentColor"
-                              aria-hidden="true"
-                              data-slot="icon"
-                            >
-                              <path
-                                fill-rule="evenodd"
-                                d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06Z"
-                                clip-rule="evenodd"
-                              />
-                            </svg>
+                            <Autocomplete
+                              :options="
+                                categories.map((cat) => ({
+                                  id: Number(cat.id),
+                                  name: cat.categoryName,
+                                }))
+                              "
+                              @callBack="addNewCategory"
+                              @onchange="handleCategory"
+                            />
                           </div>
                         </div>
 
@@ -188,34 +100,16 @@ watch(transactionType, async (newValue, oldValue) => {
                             >Income source</label
                           >
                           <div class="mt-2 grid grid-cols-1">
-                            <select
-                              id="income-sources"
-                              name="incomeSource"
-                              v-model="incomeSource"
-                              autocomplete="income-sources"
-                              class="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pl-3 pr-8 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                            >
-                              <option
-                                v-for="incomeSource in incomeSources"
-                                :key="incomeSource.id"
-                                :value="incomeSource.id"
-                              >
-                                {{ incomeSource.incomeSource }}
-                              </option>
-                            </select>
-                            <svg
-                              class="pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end text-gray-500 sm:size-4"
-                              viewBox="0 0 16 16"
-                              fill="currentColor"
-                              aria-hidden="true"
-                              data-slot="icon"
-                            >
-                              <path
-                                fill-rule="evenodd"
-                                d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06Z"
-                                clip-rule="evenodd"
-                              />
-                            </svg>
+                            <Autocomplete
+                              :options="
+                                incomeSources.map((cat) => ({
+                                  id: Number(cat.id),
+                                  name: cat.incomeSource,
+                                }))
+                              "
+                              @callBack="addNewIncomeSource"
+                              @onchange="handleIncomeSource"
+                            />
                           </div>
                         </div>
                         <div>
@@ -262,3 +156,96 @@ watch(transactionType, async (newValue, oldValue) => {
     </div>
   </Teleport>
 </template>
+
+<script setup lang="ts">
+import { ref, watch } from 'vue'
+import VueDatePicker from '@vuepic/vue-datepicker'
+import {
+  getAllCategories,
+  getAllIncomeSources,
+  addExpenseTransaction,
+  addIncomeTransaction,
+  addCategory,
+  addIncomeSource,
+} from '../api/transactions'
+import Autocomplete from './UI/Autocomplete.vue'
+
+interface AddTransactionProps {
+  open: boolean
+}
+interface Categories {
+  id: number
+  categoryName: string
+}
+
+interface IncomeSources {
+  id: number
+  incomeSource: string
+}
+
+const transactionType = ref('')
+// @ts-ignore
+defineProps<AddTransactionProps>()
+// @ts-ignore
+const emits = defineEmits<{
+  (e: 'closeAddModal'): void
+}>()
+
+const amount = ref<number | string>('')
+const note = ref<string>('')
+const date = ref<Date>(new Date())
+const category = ref<string>('')
+const incomeSource = ref<string>('')
+// const trackEvents = ref<Object>({})
+
+// list
+const categories = ref<Categories[]>([])
+const incomeSources = ref<IncomeSources[]>([])
+
+async function handleAddTransaction() {
+  if (transactionType.value === 'expense') {
+    await addExpenseTransaction({
+      amount: amount.value,
+      note: note.value,
+      date: date.value.toISOString(),
+      categoryId: category.value,
+    })
+
+    emits('closeAddModal')
+  } else if (transactionType.value === 'income') {
+    await addIncomeTransaction({
+      amount: amount.value,
+      note: note.value,
+      date: date.value.toISOString(),
+      incomeSourcesId: incomeSource.value,
+    })
+    emits('closeAddModal')
+  }
+}
+
+watch(transactionType, async (newValue, oldValue) => {
+  if (newValue === 'expense') {
+    categories.value = await getAllCategories()
+  } else if (newValue === 'income') {
+    incomeSources.value = await getAllIncomeSources()
+  }
+})
+
+async function addNewCategory(catName: string) {
+  const resData = await addCategory({ categoryName: catName })
+  category.value = resData.id
+}
+
+async function addNewIncomeSource(incSource: string) {
+  const resData = await addIncomeSource({ incomeSource: incSource })
+  incomeSource.value = resData.id
+}
+
+function handleCategory(value: number) {
+  category.value = value.toString()
+}
+
+function handleIncomeSource(value: number) {
+  incomeSource.value = value.toString()
+}
+</script>
