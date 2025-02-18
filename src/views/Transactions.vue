@@ -105,7 +105,6 @@ async function handleCloseEditModal() {
 
   const month = (date.value as Date).getMonth() + 1
   const year = (date.value as Date).getFullYear()
-  console.log('DATE', date)
   await getTransactions(month, year)
   openEditModal.value = false
 }

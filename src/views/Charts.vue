@@ -841,11 +841,6 @@ watchEffect(async () => {
       new Set(resDataDaily.map((item: any) => item.date)),
     )
 
-    console.log(
-      ' expenseMonthlyDailyData.value.legend.data',
-      expenseMonthlyDailyData.value.legend.data,
-    )
-
     // expenseDailyMonthlyDataLineChart
     expenseDailyMonthlyDataLineChart.value.series[0]['data'] = resDataDaily.map((item: any) => ({
       name: item.date,

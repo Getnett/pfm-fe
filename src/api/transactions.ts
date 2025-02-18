@@ -5,7 +5,7 @@ export async function fetchTranscationRecords(month: number, year: number) {
     )
     const transactionsData = await res.json()
 
-    let transactionsGroupedByDate: any = {}
+    const transactionsGroupedByDate: any = {}
     transactionsData.forEach((item: any) => {
       if (transactionsGroupedByDate[item.transactionDate]) {
         transactionsGroupedByDate[item.transactionDate].push(item)

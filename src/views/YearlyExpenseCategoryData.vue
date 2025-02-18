@@ -1,7 +1,54 @@
+<template>
+  <div>
+    <div class="mb-3">
+      <LineChart
+        :data="expenseData.map((expense) => ({ name: expense.date, value: expense.amount }))"
+        :legend="expenseData.map((expense) => expense.date)"
+        :formatLabel="fvalue"
+        chartLabel="Yearly spend by category"
+      />
+    </div>
+    <ul role="list" class="divide-y divide-gray-100">
+      <li
+        v-for="record in expenseData"
+        :key="record.expenseId"
+        class="cursor-pointer"
+        @click="handleOpenEditTransaction(Number(record.expenseId))"
+      >
+        <div class="flex justify-between">
+          <div class="flex gap-4 mb-1 text-base font-medium text-gray-700 capitalize">
+            <span>{{ record.note || record.categoryName }}</span>
+            <span>{{ record.percentage }}%</span>
+          </div>
+          <div>{{ record.amount }}</div>
+        </div>
+
+        <div class="w-full bg-gray-200 rounded-full h-2.5">
+          <div
+            class="bg-[#dad122] h-2.5 rounded-full"
+            style="width: 45%"
+            :style="{ width: record.percentage + '%' }"
+          ></div>
+        </div>
+        <div class="mb-4">{{ record.date }}</div>
+      </li>
+    </ul>
+
+    <EditTransaction
+      v-if="openEditModal"
+      :open="openEditModal"
+      :id="transactionId"
+      :transactionType="'expense'"
+      @closeEditModal="handleCloseEditModal"
+    />
+  </div>
+</template>
+
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import EditTransaction from '../components/EditTransaction.vue'
+import LineChart from '../components/Charts/LineChart.vue'
 import { getYearlyExpenseAnalyticsByCategory } from '../api/chart'
 import { ref } from 'vue'
 
@@ -39,41 +86,9 @@ const handleOpenEditTransaction = (expenseId: number) => {
 const handleCloseEditModal = () => {
   openEditModal.value = false
 }
+
+const fvalue = (name: string) => {
+  const item = expenseData.value.find((item) => item.date === name)
+  return `${item?.categoryName}           ${item?.amount}`
+}
 </script>
-<template>
-  <div>
-    <ul role="list" class="divide-y divide-gray-100">
-      <li
-        v-for="record in expenseData"
-        :key="record.expenseId"
-        class="cursor-pointer"
-        @click="handleOpenEditTransaction(Number(record.expenseId))"
-      >
-        <div class="flex justify-between">
-          <div class="flex gap-4 mb-1 text-base font-medium text-gray-700 capitalize">
-            <span>{{ record.note || record.categoryName }}</span>
-            <span>{{ record.percentage }}%</span>
-          </div>
-          <div>{{ record.amount }}</div>
-        </div>
-
-        <div class="w-full bg-gray-200 rounded-full h-2.5">
-          <div
-            class="bg-[#dad122] h-2.5 rounded-full"
-            style="width: 45%"
-            :style="{ width: record.percentage + '%' }"
-          ></div>
-        </div>
-        <div class="mb-4">{{ record.date }}</div>
-      </li>
-    </ul>
-
-    <EditTransaction
-      v-if="openEditModal"
-      :open="openEditModal"
-      :id="transactionId"
-      :transactionType="'expense'"
-      @closeEditModal="handleCloseEditModal"
-    />
-  </div>
-</template>

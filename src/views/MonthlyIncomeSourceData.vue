@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import EditTransaction from '../components/EditTransaction.vue'
+import LineChart from '../components/Charts/LineChart.vue'
 import { getMonthlyIncomeAnalyticsByIncomeSource } from '../api/chart'
 import { useRoute } from 'vue-router'
 
@@ -34,10 +35,23 @@ onMounted(async () => {
     Number(route.query.year),
   )
 })
+const fvalue = (name: string) => {
+  const item = incomeData.value.find((item) => item.date === name)
+  return `${item?.date}           ${item?.amount}`
+}
 </script>
 
 <template>
   <div>
+    <div class="mb-3">
+      <LineChart
+        :data="incomeData.map((income) => ({ name: income.date, value: income.amount }))"
+        :legend="incomeData.map((income) => income.date)"
+        :formatLabel="fvalue"
+        chartLabel="Monthly income by income source"
+      />
+    </div>
+
     <ul role="list" class="divide-y divide-gray-100">
       <li
         v-for="record in incomeData"
