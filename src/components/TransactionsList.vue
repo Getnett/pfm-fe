@@ -15,9 +15,6 @@ defineEmits<{
 </script>
 <template>
   <ul class="list-none">
-    <li class="flex justify-center" v-if="!Object.keys(data).length">
-      <h3 class="text-4xl">No transaction record</h3>
-    </li>
     <div v-if="Object.keys(data).length">
       <li v-for="transactionDateKey in Object.keys(data)" :key="transactionDateKey">
         <div class="flex gap-10 justify-between mb-4 mt-4 px-2 py-2 bg-[#1e293b]">

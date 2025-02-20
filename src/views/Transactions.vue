@@ -180,6 +180,22 @@ watch(date, async (newVal: Date | IMonthYear, _oldVal: Date | IMonthYear) => {
           Add
         </button>
       </div>
+
+      <div class="h-[50vh] flex items-center justify-center" v-if="loading">
+        <div class="flex space-x-2 justify-center items-center mt-4">
+          <span class="sr-only">Loading...</span>
+          <div
+            class="h-6 w-6 bg-slate-700 rounded-full animate-bounce [animation-delay:-0.3s]"
+          ></div>
+          <div
+            class="h-6 w-6 bg-slate-700 rounded-full animate-bounce [animation-delay:-0.15s]"
+          ></div>
+          <div class="h-6 w-6 bg-slate-700 rounded-full animate-bounce"></div>
+        </div>
+      </div>
+
+      <div v-if="!loading && !Object.keys(data).length">No transaction record</div>
+
       <TransactionsList
         :data="data"
         @deleteTransaction="handleDeleteTransaction"

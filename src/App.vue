@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import ChatBotVue from './components/ChatBot.vue'
+import ListBox from 'vue-material-design-icons/ListBox.vue'
+import ChartBar from 'vue-material-design-icons/ChartBar.vue'
+import GoogleAnalytics from 'vue-material-design-icons/GoogleAnalytics.vue'
+import CardAccountDetails from 'vue-material-design-icons/CardAccountDetails.vue'
 
 // make all immdeiate child elements go black [&_*]:text-black
 </script>
@@ -8,10 +12,30 @@ import ChatBotVue from './components/ChatBot.vue'
   <div class="flex h-full min-h-screen">
     <aside class="pt-8 px-8 h-screen w-[240px] fixed bg-green-700 [&_*]:text-white">
       <nav class="flex flex-col gap-8">
-        <RouterLink class="hover:text-yellow-300" to="/">Records</RouterLink>
-        <RouterLink class="hover:text-yellow-300" to="/charts">Charts</RouterLink>
-        <RouterLink class="hover:text-yellow-300" to="/analytics">Analytics</RouterLink>
-        <RouterLink class="hover:text-yellow-300" to="/accounts">Accounts</RouterLink>
+        <RouterLink class="flex gap-4 items-center" to="/">
+          <span class="hover:text-yellow-300">
+            <ListBox />
+          </span>
+          <span class="hover:text-yellow-300">Records</span>
+        </RouterLink>
+        <RouterLink class="flex gap-4 items-center" to="/charts">
+          <span class="hover:text-yellow-300">
+            <ChartBar />
+          </span>
+          <span class="hover:text-yellow-300"> Charts</span>
+        </RouterLink>
+        <RouterLink class="flex gap-4" to="/analytics">
+          <span class="hover:text-yellow-300">
+            <GoogleAnalytics />
+          </span>
+          <span class="hover:text-yellow-300">Analytics</span>
+        </RouterLink>
+        <RouterLink class="flex gap-4" to="/accounts">
+          <span class="hover:text-yellow-300">
+            <CardAccountDetails />
+          </span>
+          <span class="hover:text-yellow-300">Accounts</span>
+        </RouterLink>
       </nav>
     </aside>
 
