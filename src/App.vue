@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import ChatBotVue from './components/ChatBot.vue'
+// @ts-ignore
 import ListBox from 'vue-material-design-icons/ListBox.vue'
+// @ts-ignore
 import ChartBar from 'vue-material-design-icons/ChartBar.vue'
+// @ts-ignore
 import GoogleAnalytics from 'vue-material-design-icons/GoogleAnalytics.vue'
+// @ts-ignore
 import CardAccountDetails from 'vue-material-design-icons/CardAccountDetails.vue'
 
 // make all immdeiate child elements go black [&_*]:text-black
