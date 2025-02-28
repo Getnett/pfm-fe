@@ -199,3 +199,15 @@ export async function addIncomeSource(payload: any) {
     throw new Error(error)
   }
 }
+
+// list of accounts
+
+export async function getAllAccountList() {
+  try {
+    const res = await fetch('https://pfm.mypfmpupwrk.info/api/account-list')
+    const resData = await res.json()
+    return resData
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}

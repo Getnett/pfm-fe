@@ -1,3 +1,70 @@
+<template>
+  <div>
+    <AddTransaction v-if="openAddModal" :open="openAddModal" @closeAddModal="handleCloseAddModal" />
+    <div>
+      <div class="flex gap-12">
+        <div
+          class="grid justify-items-center content-center gap-2 grid-cols-4 py-4 rounded-lg bg-slate-200 text-gray-700 mb-12"
+        >
+          <div class="self-center">
+            {{
+              /* @ts-ignore */
+              date.year || date.getFullYear()
+            }}
+          </div>
+          <div class="self-center">Expenses</div>
+          <div class="self-center">Income</div>
+          <div class="self-center">Balance</div>
+          <div class="self-center px-4">
+            <VueDatePicker v-model="date" month-picker :format="format" :clearable="false" />
+          </div>
+          <div class="self-center">{{ totalExpense.total }}</div>
+          <div class="self-center">{{ totalIncome.total }}</div>
+          <div class="self-center">
+            {{ Number(totalIncome.total) - Number(totalExpense.total) || '' }}
+          </div>
+        </div>
+        <button
+          @click="handleOpenAddModal"
+          type="button"
+          class="h-12 focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+        >
+          Add
+        </button>
+      </div>
+
+      <div class="h-[50vh] flex items-center justify-center" v-if="loading">
+        <div class="flex space-x-2 justify-center items-center mt-4">
+          <span class="sr-only">Loading...</span>
+          <div
+            class="h-6 w-6 bg-slate-700 rounded-full animate-bounce [animation-delay:-0.3s]"
+          ></div>
+          <div
+            class="h-6 w-6 bg-slate-700 rounded-full animate-bounce [animation-delay:-0.15s]"
+          ></div>
+          <div class="h-6 w-6 bg-slate-700 rounded-full animate-bounce"></div>
+        </div>
+      </div>
+
+      <div v-if="!loading && !Object.keys(data).length">No transaction record</div>
+
+      <TransactionsList
+        :data="data"
+        @deleteTransaction="handleDeleteTransaction"
+        @editTransaction="handleOpenEditModal"
+      />
+
+      <EditTransaction
+        v-if="openEditModal"
+        :open="openEditModal"
+        :id="transactionId"
+        :transactionType="transactionType"
+        @closeEditModal="handleCloseEditModal"
+      />
+    </div>
+  </div>
+</template>
+
 <script lang="ts" setup>
 import { ref, onMounted, watch } from 'vue'
 import VueDatePicker from '@vuepic/vue-datepicker'
@@ -146,71 +213,3 @@ watch(date, async (newVal: Date | IMonthYear, _oldVal: Date | IMonthYear) => {
 // 2) Find optimal way for the code
 // 3) If possible fix the https issue
 </script>
-<template>
-  <div>
-    <AddTransaction v-if="openAddModal" :open="openAddModal" @closeAddModal="handleCloseAddModal" />
-    <div>
-      <div class="flex gap-12">
-        <div
-          class="grid justify-items-center content-center gap-2 grid-cols-4 py-4 rounded-lg bg-slate-200 text-gray-700 mb-12"
-        >
-          <div class="self-center">
-            {{
-              /* @ts-ignore */
-              date.year || date.getFullYear()
-            }}
-          </div>
-          <div class="self-center">Expenses</div>
-          <div class="self-center">Income</div>
-          <div class="self-center">Balance</div>
-          <div class="self-center px-4">
-            <VueDatePicker v-model="date" month-picker :format="format" :clearable="false" />
-          </div>
-          <div class="self-center">{{ totalExpense.total }}</div>
-          <div class="self-center">{{ totalIncome.total }}</div>
-          <div class="self-center">
-            {{ Number(totalIncome.total) - Number(totalExpense.total) || '' }}
-          </div>
-        </div>
-        <button
-          @click="handleOpenAddModal"
-          type="button"
-          class="h-12 focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
-        >
-          Add
-        </button>
-      </div>
-
-      <div class="h-[50vh] flex items-center justify-center" v-if="loading">
-        <div class="flex space-x-2 justify-center items-center mt-4">
-          <span class="sr-only">Loading...</span>
-          <div
-            class="h-6 w-6 bg-slate-700 rounded-full animate-bounce [animation-delay:-0.3s]"
-          ></div>
-          <div
-            class="h-6 w-6 bg-slate-700 rounded-full animate-bounce [animation-delay:-0.15s]"
-          ></div>
-          <div class="h-6 w-6 bg-slate-700 rounded-full animate-bounce"></div>
-        </div>
-      </div>
-
-      <div v-if="!loading && !Object.keys(data).length">No transaction record</div>
-
-      <TransactionsList
-        :data="data"
-        @deleteTransaction="handleDeleteTransaction"
-        @editTransaction="handleOpenEditModal"
-      />
-
-      <EditTransaction
-        v-if="openEditModal"
-        :open="openEditModal"
-        :id="transactionId"
-        :transactionType="transactionType"
-        @closeEditModal="handleCloseEditModal"
-      />
-    </div>
-  </div>
-</template>
-
-<style></style>

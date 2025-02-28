@@ -28,7 +28,10 @@
             :disabled="
               options
                 .map((option) => option.name.toLowerCase())
-                .includes(value.toString().toLowerCase().trim())
+                .includes(value.toString().toLowerCase().trim()) ||
+              (typeof value === 'object'
+                ? value.name.trim() === ''
+                : value.toString().trim() === '')
             "
             @click="addNewOption(value.toString())"
           />
