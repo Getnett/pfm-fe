@@ -6,6 +6,7 @@
 @import 'tailwindcss/components';
 @import './primevue/tailwind.css';
 @import 'tailwindcss/utilities';
+@import 'primeicons/primeicons.css';
 
 * {
   box-sizing: border-box;

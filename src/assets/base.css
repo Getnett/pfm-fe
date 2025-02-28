@@ -63,7 +63,8 @@
     --p-content-hover-background: var(--p-surface-800);
     --p-content-hover-color: var(--p-surface-0);
     --p-highlight-background: color-mix(in srgb, var(--p-primary-400), transparent 84%);
-    --p-highlight-color: rgba(255, 255, 255, 0.87);
+    /* --p-highlight-color: rgba(255, 255, 255, 0.87); */
+    --p-highlight-color: var(--p-primary-800);
     --p-highlight-focus-background: color-mix(in srgb, var(--p-primary-400), transparent 76%);
     --p-highlight-focus-color: rgba(255, 255, 255, 0.87);
     --p-text-color: var(--p-surface-0);

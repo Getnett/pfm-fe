@@ -121,14 +121,67 @@
         :value="accounts"
         selectionMode="single"
         dataKey="id"
-        @rowSelect="onRowSelect"
+        editMode="row"
+        @row-edit-save="onRowEditSave"
+        v-model:editingRows="editingRows"
         :metaKeySelection="false"
         tableStyle="min-width: 50rem"
+        class="![&_.bg-highlight]:bg-red-500 ![&_.p-highlight]:text-red [&_.p-highlight:hover]:bg-blue-600"
+        :pt="{
+          column: {
+            // @ts-ignore
+            bodycell: ({ state }) => ({
+              style: state['d_editing'] && 'padding-top: 0.75rem; padding-bottom: 0.75rem',
+            }),
+          },
+        }"
       >
-        <Column field="id" header="ID"></Column>
-        <Column field="accountName" header="Account"></Column>
-        <Column field="balance" header="Balance"></Column>
-        <Column field="note" header="Note"></Column>
+        <Column field="id" header="ID"> </Column>
+        <Column field="accountName" header="Account">
+          <template #editor="{ data, field }">
+            <InputText v-model="data[field]" fluid />
+          </template>
+        </Column>
+        <Column field="balance" header="Balance">
+          <template #editor="{ data, field }">
+            <InputNumber v-model="data[field]" fluid />
+          </template>
+        </Column>
+        <Column field="note" header="Note">
+          <template #editor="{ data, field }">
+            <InputText v-model="data[field]" fluid />
+          </template>
+        </Column>
+        <Column
+          :rowEditor="true"
+          style="width: 10%; min-width: 8rem"
+          bodyStyle="text-align:center"
+        ></Column>
+        <Column>
+          <template #body="slotProps">
+            <Button
+              :disabled="slotProps.data.accountName === 'default'"
+              unstyled
+              class="bg-transparent border-0 outline-none hover:bg-transparent"
+              :style="{
+                cursor: slotProps.data.accountName === 'default' ? 'not-allowed' : 'allowed',
+              }"
+              icon="pi pi-trash"
+              aria-label="Delete"
+            />
+          </template>
+        </Column>
+        <Column header="Details">
+          <template #body="slotProps">
+            <Button
+              :disabled="slotProps.data.accountName === 'default'"
+              unstyled
+              class="bg-transparent border-0 outline-none hover:bg-transparent"
+              icon="pi pi-angle-right"
+              aria-label="details"
+            />
+          </template>
+        </Column>
       </DataTable>
       <Toast />
     </div>
@@ -136,6 +189,7 @@
 </template>
 
 <script lang="ts">
+import type { DataTableRowSelectEvent, DataTableRowEditSaveEvent } from 'primevue/datatable'
 // "id": 1,
 //         "accountName": "default",
 //         "balance": 576085,
@@ -160,8 +214,10 @@ import { useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
 import Button from 'primevue/button'
 import DataTable from 'primevue/datatable'
-import type { DataTableRowSelectEvent } from 'primevue/datatable'
 import Column from 'primevue/column'
+import InputText from 'primevue/inputtext'
+import InputNumber from 'primevue/inputnumber'
+
 import Autocomplete from '../components/UI/Autocomplete.vue'
 import { createAccount, createAccountType, getAccountTypes, getAccounts } from '../api/account'
 
@@ -173,6 +229,7 @@ const note = ref('')
 const accountTypes = ref<AccountType[]>([])
 const accounts = ref<Account[]>([])
 const selectedAccount = ref()
+const editingRows = ref([])
 const toast = useToast()
 const router = useRouter()
 
@@ -203,6 +260,22 @@ async function handleAddAccount() {
   handleCloseOpenAddAccount()
 }
 
+// check type here
+const onRowEditSave = (event: DataTableRowEditSaveEvent) => {
+  if (event.data.accountName === 'default') {
+    toast.add({
+      severity: 'warn',
+      summary: 'Edit account',
+      detail: event.data.accountName + ' account cannot be edited!',
+      life: 3000,
+    })
+    return
+  }
+  let { newData, index } = event
+
+  accounts.value[index] = newData
+}
+
 onMounted(async () => {
   accountTypes.value = await getAccountTypes()
 })
@@ -212,23 +285,4 @@ onMounted(async () => {
 onMounted(async () => {
   accounts.value = await getAccounts()
 })
-
-const onRowSelect = (event: DataTableRowSelectEvent) => {
-  console.log('event', event.data.id)
-  router.push(`/accounts/transactions?accountId=${event.data.id}`)
-  toast.add({
-    severity: 'info',
-    summary: 'Account Selected',
-    detail: 'Name: ' + event.data.accountName,
-    life: 3000,
-  })
-}
-// const onRowUnselect = (event) => {
-//   toast.add({
-//     severity: 'warn',
-//     summary: 'Account Unselected',
-//     detail: 'Name: ' + event.data.accountName,
-//     life: 3000,
-//   })
-// }
 </script>
