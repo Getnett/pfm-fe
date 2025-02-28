@@ -160,6 +160,7 @@ import { useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
 import Button from 'primevue/button'
 import DataTable from 'primevue/datatable'
+import type { DataTableRowSelectEvent } from 'primevue/datatable'
 import Column from 'primevue/column'
 import Autocomplete from '../components/UI/Autocomplete.vue'
 import { createAccount, createAccountType, getAccountTypes, getAccounts } from '../api/account'
@@ -212,7 +213,7 @@ onMounted(async () => {
   accounts.value = await getAccounts()
 })
 
-const onRowSelect = (event) => {
+const onRowSelect = (event: DataTableRowSelectEvent) => {
   console.log('event', event.data.id)
   router.push(`/accounts/transactions?accountId=${event.data.id}`)
   toast.add({
