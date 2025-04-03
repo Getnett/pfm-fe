@@ -48,11 +48,98 @@
 
       <div v-if="!loading && !Object.keys(data).length">No transaction record</div>
 
-      <TransactionsList
+      <!-- <DataTable :value="data" tableStyle="min-width: 50rem">
+        <Column v-for="col of columns" :key="col" :field="col" :header="col"></Column>
+      </DataTable> -->
+
+      <!-- <TransactionsList
         :data="data"
         @deleteTransaction="handleDeleteTransaction"
         @editTransaction="handleOpenEditModal"
-      />
+      /> -->
+
+      <DataTable
+        :value="data"
+        tableStyle="min-width: 50rem"
+        rowGroupMode="subheader"
+        groupRowsBy="transactionDate"
+        sortMode="single"
+        :sortOrder="1"
+        scrollable
+        scroll-height="700px"
+      >
+        <Column v-for="col of columns" :key="col" :field="col" :header="col"></Column>
+        <!-- sortField="transactionDate" -->
+        <template #groupheader="slotProps">
+          <div class="flex items-center gap-2">
+            <span class="font-semibold text-lg text-black">{{
+              slotProps.data.transactionDate
+            }}</span>
+            <div class="flex items-center gap-4">
+              <span class="font-medium text-base text-red-500">
+                {{
+                  (data.length &&
+                    data.find(
+                      (info) =>
+                        info.transactionDate === slotProps.data.transactionDate &&
+                        info.type === 'expense',
+                    ) &&
+                    `Expense : ${
+                      data.find(
+                        (info) =>
+                          info.transactionDate === slotProps.data.transactionDate &&
+                          info.type === 'expense',
+                      ).total
+                    }`) ||
+                  ''
+                }}
+              </span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="font-medium text-base text-green-500">
+                {{
+                  (data.length &&
+                    data.find(
+                      (info) =>
+                        info.transactionDate === slotProps.data.transactionDate &&
+                        info.type === 'income',
+                    ) &&
+                    `Income : ${
+                      data.find(
+                        (info) =>
+                          info.transactionDate === slotProps.data.transactionDate &&
+                          info.type === 'income',
+                      ).total
+                    }`) ||
+                  ''
+                }}
+              </span>
+            </div>
+          </div>
+        </template>
+        <Column class="w-24 !text-end">
+          <template #body="{ data }">
+            <Button
+              @click="editRow(data)"
+              severity="secondary"
+              rounded
+              icon="pi pi-pencil"
+              aria-label="Edit"
+            ></Button>
+          </template>
+        </Column>
+        <Column class="w-24 !text-end">
+          <template #body="{ data }">
+            <Button
+              @click="deleteRow(data)"
+              severity="secondary"
+              rounded
+              icon="pi pi-trash"
+              aria-label="Delete"
+            ></Button>
+          </template>
+        </Column>
+      </DataTable>
 
       <EditTransaction
         v-if="openEditModal"
@@ -61,6 +148,7 @@
         :transactionType="transactionType"
         @closeEditModal="handleCloseEditModal"
       />
+      <Toast />
     </div>
   </div>
 </template>
@@ -68,8 +156,12 @@
 <script lang="ts" setup>
 import { ref, onMounted, watch } from 'vue'
 import VueDatePicker from '@vuepic/vue-datepicker'
+import DataTable from 'primevue/datatable'
+import Button from 'primevue/button'
+import Column from 'primevue/column'
+import { useToast } from 'primevue/usetoast'
 import '@vuepic/vue-datepicker/dist/main.css'
-import type { TransactionType } from '../types/types'
+import type { Transaction, TransactionType } from '../types/types'
 import TransactionsList from '@/components/TransactionsList.vue'
 import EditTransaction from '@/components/EditTransaction.vue'
 import AddTransaction from '../components/AddTransaction.vue'
@@ -90,9 +182,11 @@ interface TotalAmount {
   total: string | number
 }
 
-const data = ref({} as TransactionType)
+const data = ref<Transaction[]>([])
+const columns = ref<string[]>([])
 const totalExpense = ref<TotalAmount>({ total: '' })
 const totalIncome = ref<TotalAmount>({ total: '' })
+const toast = useToast()
 
 // mainly as props
 const transactionId = ref<number | null>(null)
@@ -131,7 +225,20 @@ async function getTransactions(month: number, year: number) {
   loading.value = true
   try {
     const resData = await fetchTranscationRecords(month, year)
-    data.value = resData as TransactionType
+    console.log('resData', resData)
+    //     {
+    //     "id": 47,
+    //     "amount": 100,
+    //     "note": "cost",
+    //     "date": "2025-02-18T14:58:33.894Z",
+    //     "transactionDate": "Feb 18 Tuesday  ",
+    //     "total": "185",
+    //     "type": "expense"
+    // }
+    data.value = resData
+
+    console.log('columns', Object.keys(resData[0]))
+    columns.value = Object.keys(resData[0]).filter((key) => key !== 'total')
   } catch (err: any) {
     error.value = err?.message || 'Somthing went wrong!'
   } finally {
@@ -153,6 +260,7 @@ async function handleDeleteTransaction(type: string, id: number) {
 
   if (type === 'expense') {
     await deleteExpenseTransaction(id)
+    // replace with state management library
     await getTransactions(month, year)
   } else if (type === 'income') {
     await deleteIncomeTransaction(id)
@@ -169,10 +277,10 @@ function handleOpenEditModal(id: number, type: string) {
 async function handleCloseEditModal() {
   // const month = (date.value as IMonthYear).month + 1
   // const year = (date.value as IMonthYear).year
-
-  const month = (date.value as Date).getMonth() + 1
-  const year = (date.value as Date).getFullYear()
-  await getTransactions(month, year)
+  console.log('date', date)
+  // const month = (date.value as Date).getMonth() + 1
+  // const year = (date.value as Date).getFullYear()
+  // await getTransactions(month, year)
   openEditModal.value = false
 }
 
@@ -208,6 +316,18 @@ watch(date, async (newVal: Date | IMonthYear, _oldVal: Date | IMonthYear) => {
   await getTotalIncome(month, year)
 })
 
+const editRow = async (data: Transaction) => {
+  handleOpenEditModal(data.id, data.type)
+}
+const deleteRow = async (data: Transaction) => {
+  await handleDeleteTransaction(data.type, data.id)
+  toast.add({
+    severity: 'success',
+    summary: 'Delete',
+    detail: 'Deleted a transaction',
+    life: 3000,
+  })
+}
 // TODO
 // 1) Loading state and error handling
 // 2) Find optimal way for the code

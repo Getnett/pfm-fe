@@ -166,6 +166,7 @@
               :style="{
                 cursor: slotProps.data.accountName === 'default' ? 'not-allowed' : 'allowed',
               }"
+              @click="handleDeleteAccount(Number(slotProps.data.id), slotProps)"
               icon="pi pi-trash"
               aria-label="Delete"
             />
@@ -175,7 +176,6 @@
           <template #body="slotProps">
             <Button
               :disabled="slotProps.data.accountName === 'default'"
-              unstyled
               class="bg-transparent border-0 outline-none hover:bg-transparent"
               icon="pi pi-angle-right"
               aria-label="details"
@@ -219,7 +219,13 @@ import InputText from 'primevue/inputtext'
 import InputNumber from 'primevue/inputnumber'
 
 import Autocomplete from '../components/UI/Autocomplete.vue'
-import { createAccount, createAccountType, getAccountTypes, getAccounts } from '../api/account'
+import {
+  createAccount,
+  createAccountType,
+  getAccountTypes,
+  getAccounts,
+  deleteAccount,
+} from '../api/account'
 
 const openAddAccount = ref(false)
 const accountName = ref('')
@@ -261,11 +267,11 @@ async function handleAddAccount() {
 }
 
 // check type here
-const onRowEditSave = (event: DataTableRowEditSaveEvent) => {
+function onRowEditSave(event: DataTableRowEditSaveEvent) {
   if (event.data.accountName === 'default') {
     toast.add({
       severity: 'warn',
-      summary: 'Edit account',
+      summary: 'Edit Account',
       detail: event.data.accountName + ' account cannot be edited!',
       life: 3000,
     })
@@ -274,6 +280,16 @@ const onRowEditSave = (event: DataTableRowEditSaveEvent) => {
   let { newData, index } = event
 
   accounts.value[index] = newData
+}
+
+async function handleDeleteAccount(id: number, row: any) {
+  console.log('what')
+  await deleteAccount(id)
+  toast.add({
+    severity: 'success',
+    summary: 'Delete Account',
+    detail: 'Deleted ' + row.data.accountName,
+  })
 }
 
 onMounted(async () => {

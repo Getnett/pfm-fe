@@ -14,7 +14,7 @@ import CardAccountDetails from 'vue-material-design-icons/CardAccountDetails.vue
 
 <template>
   <div class="flex h-full min-h-screen">
-    <aside class="pt-8 px-8 h-screen w-[240px] fixed bg-green-700 [&_*]:text-white">
+    <aside class="pt-8 px-8 h-screen w-[240px] fixed bg-green-900 [&_*]:text-white">
       <nav class="flex flex-col gap-8">
         <RouterLink class="flex gap-4 items-center" to="/">
           <span class="hover:text-yellow-300">

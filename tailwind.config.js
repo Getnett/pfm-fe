@@ -1,4 +1,5 @@
 /** @type {import('tailwindcss').Config} */
+import primeVuePlugin from 'tailwindcss-primeui'
 export default {
   purge: [
     './index.html',
@@ -10,5 +11,5 @@ export default {
   theme: {
     extend: {},
   },
-  plugins: [require('tailwindcss-primeui')],
+  plugins: [primeVuePlugin],
 }

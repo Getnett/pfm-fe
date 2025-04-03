@@ -24,6 +24,15 @@ export async function createAccount(payload: any) {
   }
 }
 
+export async function deleteAccount(id: number) {
+  try {
+    const res = await fetch(`https://pfm.mypfmpupwrk.info/api/accounts/${id}`, {
+      method: 'DELETE',
+    })
+    const resData = await res.json()
+    return resData
+  } catch (error) {}
+}
 export async function getAccountTypes() {
   try {
     const res = await fetch('https://pfm.mypfmpupwrk.info/api/account-type')
