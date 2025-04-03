@@ -78,6 +78,7 @@
             <div class="flex items-center gap-4">
               <span class="font-medium text-base text-red-500">
                 {{
+                  // @ts-ignore
                   (data.length &&
                     data.find(
                       (info) =>
@@ -85,6 +86,7 @@
                         info.type === 'expense',
                     ) &&
                     `Expense : ${
+                      // @ts-ignore
                       data.find(
                         (info) =>
                           info.transactionDate === slotProps.data.transactionDate &&
@@ -99,12 +101,14 @@
               <span class="font-medium text-base text-green-500">
                 {{
                   (data.length &&
+                    // @ts-ignore
                     data.find(
                       (info) =>
                         info.transactionDate === slotProps.data.transactionDate &&
                         info.type === 'income',
                     ) &&
                     `Income : ${
+                      // @ts-ignore
                       data.find(
                         (info) =>
                           info.transactionDate === slotProps.data.transactionDate &&
