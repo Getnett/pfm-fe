@@ -17,28 +17,28 @@ import CardAccountDetails from 'vue-material-design-icons/CardAccountDetails.vue
     <aside class="pt-8 px-8 h-screen w-[240px] fixed bg-green-900 [&_*]:text-white">
       <nav class="flex flex-col gap-8">
         <RouterLink class="flex gap-4 items-center" to="/">
-          <span class="hover:text-yellow-300">
+          <span class="hover:text-[#FFA800]">
             <ListBox />
           </span>
-          <span class="hover:text-yellow-300">Records</span>
+          <span class="hover:text-[#FFA800]">Records</span>
         </RouterLink>
         <RouterLink class="flex gap-4 items-center" to="/charts">
-          <span class="hover:text-yellow-300">
+          <span class="hover:text-[#FFA800]">
             <ChartBar />
           </span>
-          <span class="hover:text-yellow-300"> Charts</span>
+          <span class="hover:text-[#FFA800]"> Charts</span>
         </RouterLink>
         <RouterLink class="flex gap-4" to="/analytics">
-          <span class="hover:text-yellow-300">
+          <span class="hover:text-[#FFA800]">
             <GoogleAnalytics />
           </span>
-          <span class="hover:text-yellow-300">Analytics</span>
+          <span class="hover:text-[#FFA800]">Analytics</span>
         </RouterLink>
         <RouterLink class="flex gap-4" to="/accounts">
-          <span class="hover:text-yellow-300">
+          <span class="hover:text-[#FFA800]">
             <CardAccountDetails />
           </span>
-          <span class="hover:text-yellow-300">Accounts</span>
+          <span class="hover:text-[#FFA800]">Accounts</span>
         </RouterLink>
       </nav>
     </aside>

@@ -1,6 +1,10 @@
 <template>
   <div>
-    <Button label="Add account" @click="handleOpenAddAccount" />
+    <Button
+      class="bg-[#FFA800] text-white border-0 hover:!bg-[#FFA800]"
+      label="Add account"
+      @click="handleOpenAddAccount"
+    />
     <Teleport v-if="openAddAccount" to="body">
       <div class="relative z-10" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="fixed inset-0 bg-gray-500/75 transition-opacity" aria-hidden="true"></div>

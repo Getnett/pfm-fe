@@ -1,7 +1,9 @@
 export async function fetchTranscationRecords(month: number, year: number) {
   try {
     // https://pfm.mypfmpupwrk.info
-    const res = await fetch(`http://localhost:3000/api/transactions?month=${month}&year=${year}`)
+    const res = await fetch(
+      `https://pfm.mypfmpupwrk.info/api/transactions?month=${month}&year=${year}`,
+    )
     const transactionsData = await res.json()
     return transactionsData
 
