@@ -20,7 +20,7 @@ This application helps users track their income and expenses effectively.
 * **Income Donut Charts (Yearly):** Visualize monthly income distribution within a year.
 * **Income Line Chart:** Track total income over time for each source (monthly and yearly).
 * **CI/CD:** Implemented with GitHub Actions and  Amazon Amplify.
-* **Hosting:** Deployed on Amazon Amplify.
+* **Hosting:** Deployed on Amazon Amplify.(Obselete now)
 
 ## Technologies Used
 
